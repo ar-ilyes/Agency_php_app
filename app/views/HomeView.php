@@ -1,26 +1,27 @@
 <?php 
 
-class HomeView
+class HomeView extends BaseView
 {
     public function index()
     {
+        $this->renderHead();  // Render the head (including the Tailwind CDN)
         $this->affich_navbar();
         $this->affich_hero();
-        $this->affich_footer();
+        $this->renderFooter();  // Render the footer
     }
 
     public function affich_navbar()
     {
-        echo "<nav>Navbar Content</nav>";
+        echo "<nav class='bg-blue-500 p-4 text-white text-center'>Navbar Content</nav>";
     }
 
     public function affich_hero()
     {
-        echo "<div>Hero Section Content</div>";
+        echo "<div class='bg-red-200 p-8 text-center'>Hero Section Content</div>";
     }
 
     public function affich_footer()
     {
-        echo "<footer>Footer Content</footer>";
+        echo "<footer class='bg-gray-800 text-white text-center py-4'>Footer Content</footer>";
     }
 }

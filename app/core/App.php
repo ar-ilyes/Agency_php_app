@@ -9,7 +9,6 @@ class App
 	{
 		$URL = $_GET['url'] ?? 'home';
 		$URL = explode("/", trim($URL,"/"));
-		echo $URL[0];
 		return $URL;	
 	}
 
@@ -18,7 +17,6 @@ class App
 		$URL = $this->splitURL();
 
 		$filename = "../app/controllers/".ucfirst($URL[0]).".php";
-		echo $filename;
 		if(file_exists($filename))
 		{
 			require $filename;
