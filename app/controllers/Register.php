@@ -31,12 +31,15 @@ class Register {
             // Respond with JSON (success or error)
             if ($result) {
                 echo json_encode(["success" => true]);
+                // Redirect to the success page
+                //TODO : header('Location: /member');
             } else {
                 echo json_encode(["success" => false, "error" => "Registration failed"]);
             }
             exit;
         }
-        // Call the afficher_site method of the view to render the page
+        
+        //Call the afficher_site method of the view to render the page
         $view = new RegistrationView();
         $view->afficher_site();
     }
@@ -70,21 +73,21 @@ class Register {
             return false; // Handle file upload error
         }
 
-        // Process the ID document upload
-        $id_doc_path = $this->upload_file($data['id_document'], $upload_dir);
-        if ($id_doc_path) {
-            $this->member_model->update_id_document($member_id, $id_doc_path);
+        $id_doc = $this->upload_file($data['id_document'], $upload_dir);
+        if ($id_doc) {
+            $this->member_model->update_id_document($member_id, $id_doc);
         } else {
             return false; // Handle file upload error
         }
 
-        // Process the payment receipt upload
-        $payment_receipt_path = $this->upload_file($data['payment_receipt'], $upload_dir);
-        if ($payment_receipt_path) {
-            $this->member_model->update_payment_receipt($member_id, $payment_receipt_path);
+        $payment_receipt = $this->upload_file($data['payment_receipt'], $upload_dir);
+        if ($payment_receipt) {
+            $this->member_model->update_payment_receipt($member_id, $payment_receipt);
         } else {
             return false; // Handle file upload error
         }
+        $this->generate_card(17);
+
 
         return true; // Successfully registered the member
     }
@@ -97,4 +100,28 @@ class Register {
         }
         return false; // Return false if file upload fails
     }
+
+    public function get_member_data($member_id) {
+        return $this->member_model->get_member_by_id($member_id);
+    }
+
+    public function generate_card($member_id) {
+        // Get member data
+        $member_data = $this->get_member_data($member_id);
+        
+        if (!$member_data) {
+            return json_encode(['error' => 'Member not found']);
+        }
+        
+        // Generate card image
+        $view = new CardView($this);
+        $card_path = $view->generate_card_image($member_id);
+        
+        return json_encode([
+            'success' => true,
+            'card_path' => $card_path
+        ]);
+    }
+    
+    
 }
