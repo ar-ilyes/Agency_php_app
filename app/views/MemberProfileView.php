@@ -1,16 +1,29 @@
 <?php 
 class MemberProfileView extends BaseView
 {
+    protected $data = [];
+    protected $controller;
+    private $card;
+    public function __construct()
+    {
+        $user = $_SESSION['user'];
+        $member_id = $user['entity_id'];
+        $this->card = "/cards/card_$member_id.png";
+    }
     public function index()
     {
         $this->renderHead();
         // $this->render_top_navbar();
-        if (true) {
+        if ($this->isMembershipExpired()) {
             $this->render_expired_warning();
         }
         $this->render_profile_header();
         $this->render_favorites_section();
         $this->render_history_section();
+    }
+    private function isMembershipExpired() {
+        // Implement your expiration logic here
+        return false;
     }
 
     private function render_expired_warning()
@@ -42,6 +55,8 @@ class MemberProfileView extends BaseView
 
     private function render_profile_header()
     {
+        $member = $this->data['member'];
+        $membershipType = $this->data['membershipType'];
     ?>
         <div class="container mx-auto px-4 py-8">
             <div class="bg-white rounded-lg shadow-lg p-6 flex flex-wrap md:flex-nowrap gap-8">
@@ -51,27 +66,27 @@ class MemberProfileView extends BaseView
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <p class="text-gray-600">Member ID</p>
-                            <p class="font-medium">MEM123456</p>
+                            <p class="font-medium">MEM<?= htmlspecialchars($member['member_id']) ?></p>
                         </div>
                         <div class="space-y-2">
                             <p class="text-gray-600">Name</p>
-                            <p class="font-medium">John Doe</p>
+                            <p class="font-medium"><?= htmlspecialchars($member['first_name'] . ' ' . $member['last_name']) ?></p>
                         </div>
                         <div class="space-y-2">
-                            <p class="text-gray-600">Date of Birth</p>
-                            <p class="font-medium">01/15/1990</p>
+                            <p class="text-gray-600">Email</p>
+                            <p class="font-medium"><?= htmlspecialchars($member['email']) ?></p>
                         </div>
                         <div class="space-y-2">
-                            <p class="text-gray-600">Inscription Date</p>
-                            <p class="font-medium">03/20/2024</p>
+                            <p class="text-gray-600">City</p>
+                            <p class="font-medium"><?= htmlspecialchars($member['city']) ?></p>
                         </div>
                         <div class="space-y-2">
-                            <p class="text-gray-600">Phone Number</p>
-                            <p class="font-medium">+213 555 123 456</p>
+                            <p class="text-gray-600">Address</p>
+                            <p class="font-medium"><?= htmlspecialchars($member['address']) ?></p>
                         </div>
                         <div class="space-y-2">
                             <p class="text-gray-600">Membership Type</p>
-                            <p class="font-medium">Premium</p>
+                            <p class="font-medium"><?= htmlspecialchars($membershipType['name'] ?? 'Standard') ?></p>
                         </div>
                     </div>
                 </div>
@@ -79,7 +94,7 @@ class MemberProfileView extends BaseView
                 <!-- Member Card Section -->
                 <div class="w-full md:w-1/3">
                     <div class="bg-gray-100 rounded-lg p-4 aspect-[3/2] relative overflow-hidden">
-                        <img src="/cards/card_17.png" alt="Member Photo" class="w-full h-full object-cover rounded">
+                        <img src="<?= htmlspecialchars($this->card ?? '/cards/default_card.png') ?>" alt="Member Photo" class="w-full h-full object-cover rounded">
                         <div class="absolute bottom-4 left-4 bg-white px-3 py-1 rounded-full text-sm">
                             Valid until: 03/20/2025
                         </div>
@@ -89,6 +104,7 @@ class MemberProfileView extends BaseView
         </div>
     <?php
     }
+
 
     private function render_favorites_section()
     {
@@ -182,5 +198,13 @@ class MemberProfileView extends BaseView
             </div>
         </div>
     <?php
+    }
+
+    public function setData($data) {
+        $this->data = $data;
+    }
+
+    public function setController($controller) {
+        $this->controller = $controller;
     }
 }

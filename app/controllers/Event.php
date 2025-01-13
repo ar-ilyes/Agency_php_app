@@ -7,7 +7,8 @@ class Event {
     }
     
     public function index() {
-        $member_id = $_GET['member_id'] ?? null;
+        $user = $_SESSION['user'];
+        $member_id = $user['entity_id'];
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $result = $this->register_volunteer();
             echo json_encode($result);

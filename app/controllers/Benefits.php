@@ -9,7 +9,8 @@ class Benefits {
     }
     
     public function index() {
-        $member_id = $_GET['member_id'] ?? null;
+        $user = $_SESSION['user'];
+        $member_id = $user['entity_id'];
         
         if (!$member_id) {
             header('Location: /error');
