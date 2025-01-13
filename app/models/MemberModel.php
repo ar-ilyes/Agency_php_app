@@ -67,6 +67,14 @@ class MemberModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function get_membership_type($membership_type_id) {
+        $c = $this->connect();
+        $q = "SELECT * FROM membership_types WHERE membership_type_id = '{$membership_type_id}'";
+        $result = $this->query($c, $q)->fetch(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
     
 }
 

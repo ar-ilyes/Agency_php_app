@@ -3,6 +3,7 @@ class BenefitsView {
     public function afficher_site($data) {
         $this->afficher_header();
         $this->afficher_membership_info($data['membership_type']);
+        $this->afficher_filters($data);
         $this->afficher_standard_discounts($data['standard_discounts']);
         $this->afficher_special_offers($data['special_offers']);
         $this->afficher_advantages($data['advantages']);
@@ -113,6 +114,68 @@ class BenefitsView {
         </section>
         <?php
     }
+
+    private function afficher_filters($data) {
+        ?>
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <input type="hidden" name="member_id" value="<?= htmlspecialchars($_GET['member_id']) ?>">
+                    
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select name="category" id="category" class="form-select">
+                            <option value="">All Categories</option>
+                            <?php foreach ($data['categories'] as $category): ?>
+                                <option value="<?= htmlspecialchars($category) ?>" 
+                                    <?= $data['current_filters']['category'] === $category ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($category) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="city" class="form-label">City</label>
+                        <select name="city" id="city" class="form-select">
+                            <option value="">All Cities</option>
+                            <?php foreach ($data['cities'] as $city): ?>
+                                <option value="<?= htmlspecialchars($city) ?>"
+                                    <?= $data['current_filters']['city'] === $city ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($city) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="sort" class="form-label">Sort By</label>
+                        <select name="sort" id="sort" class="form-select">
+                            <option value="">Default</option>
+                            <option value="partner_name_asc" <?= $data['current_sort'] === 'partner_name_asc' ? 'selected' : '' ?>>
+                                Partner Name (A-Z)
+                            </option>
+                            <option value="partner_name_desc" <?= $data['current_sort'] === 'partner_name_desc' ? 'selected' : '' ?>>
+                                Partner Name (Z-A)
+                            </option>
+                            <option value="discount_value_desc" <?= $data['current_sort'] === 'discount_value_desc' ? 'selected' : '' ?>>
+                                Highest Discount First
+                            </option>
+                            <option value="discount_value_asc" <?= $data['current_sort'] === 'discount_value_asc' ? 'selected' : '' ?>>
+                                Lowest Discount First
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block">Apply Filters</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <?php
+    }
     
     private function afficher_footer() {
         ?>
@@ -122,4 +185,5 @@ class BenefitsView {
         </html>
         <?php
     }
+
 }
