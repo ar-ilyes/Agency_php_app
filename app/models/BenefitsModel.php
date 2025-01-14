@@ -48,6 +48,10 @@ class BenefitsModel {
             $query .= " AND p.city = ?";
             $params[] = $filters['city'];
         }
+        if (!empty($filters['partner_id'])) {
+            $query .= " AND p.id = ?";
+            $params[] = $filters['partner_id'];
+        }
         
         // Add sorting
         if ($sort) {
@@ -88,6 +92,10 @@ class BenefitsModel {
             $query .= " AND p.city = ?";
             $params[] = $filters['city'];
         }
+        if(!empty($filters['partner_id'])) {
+            $query .= " AND p.id = ?";
+            $params[] = $filters['partner_id'];
+        }
         
         if ($sort) {
             $query .= " ORDER BY " . $this->get_sort_clause($sort);
@@ -123,6 +131,11 @@ class BenefitsModel {
         if (!empty($filters['city'])) {
             $query .= " AND p.city = ?";
             $params[] = $filters['city'];
+        }
+
+        if (!empty($filters['partner_id'])) {
+            $query .= " AND p.id = ?";
+            $params[] = $filters['partner_id'];
         }
         
         if ($sort) {

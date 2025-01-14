@@ -80,4 +80,97 @@ class PartnerModel {
         $this->disconnect($c);
         return $r;
     }
+
+    public function delete_partner($partner_id) {
+        $c = $this->connect();
+        $q = "DELETE FROM PARTNER WHERE id = :partner_id";
+        $stmt = $c->prepare($q);
+        $result = $stmt->execute([':partner_id' => $partner_id]);
+        $this->disconnect($c);
+        return $result;
+    }
+
+    public function create_partner($data) {
+        $c = $this->connect();
+        
+        try {
+            // Start transaction since we're inserting into multiple tables
+            $c->beginTransaction();
+            
+            // First create the user
+            $userQuery = "INSERT INTO users (user_type, email, password) VALUES (:user_type, :email, :password)";
+            $userStmt = $c->prepare($userQuery);
+            $userResult = $userStmt->execute([
+                ':user_type' => 'partner', // Assuming 'partner' is the user_type for partners
+                ':email' => $data['email'],
+                ':password' => password_hash($data['password'], PASSWORD_DEFAULT) // Always hash passwords
+            ]);
+            
+            if (!$userResult) {
+                throw new Exception("Failed to create user");
+            }
+            
+            $userId = $c->lastInsertId();
+            
+            // Then create the partner with the user_id reference
+            $partnerQuery = "INSERT INTO PARTNER (name, city, category, logo, user_id) 
+                            VALUES (:name, :city, :category, :logo, :user_id)";
+            $partnerStmt = $c->prepare($partnerQuery);
+            $partnerResult = $partnerStmt->execute([
+                ':name' => $data['name'],
+                ':city' => $data['city'],
+                ':category' => $data['category'],
+                ':logo' => $data['logo'] ?? null,
+                ':user_id' => $userId
+            ]);
+            
+            if (!$partnerResult) {
+                throw new Exception("Failed to create partner");
+            }
+            
+            $partnerId = $c->lastInsertId();
+            
+            // If everything went well, commit the transaction
+            $c->commit();
+            
+            return [
+                'partner_id' => $partnerId,
+                'user_id' => $userId
+            ];
+            
+        } catch (Exception $e) {
+            // If anything goes wrong, rollback the transaction
+            $c->rollBack();
+            throw $e;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+
+    public function get_filtered_partners($filters = []) {
+        $c = $this->connect();
+        $q = "SELECT * FROM PARTNER WHERE 1=1";
+        $params = [];
+
+        if (!empty($filters['city'])) {
+            $q .= " AND city = :city";
+            $params[':city'] = $filters['city'];
+        }
+
+        if (!empty($filters['category'])) {
+            $q .= " AND category = :category";
+            $params[':category'] = $filters['category'];
+        }
+
+        if (!empty($filters['search'])) {
+            $q .= " AND name LIKE :search";
+            $params[':search'] = "%{$filters['search']}%";
+        }
+
+        $stmt = $c->prepare($q);
+        $stmt->execute($params);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
 }

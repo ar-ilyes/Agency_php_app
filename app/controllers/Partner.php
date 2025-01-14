@@ -3,10 +3,12 @@ class Partner {
     use Controller;
     private $partnerModel;
     private $memberModel;
+    private $benefitsModel;
 
     public function __construct() {
         $this->partnerModel = new PartnerModel();
         $this->memberModel = new MemberModel();
+        $this->benefitsModel = new BenefitsModel();
     }
 
     public function index() {
@@ -44,6 +46,7 @@ class Partner {
 
     private function verify_member() {
         $member_id = $_POST['member_id'] ?? null;
+        $partner_id = $_SESSION['user']['entity_id'];
         
         if($member_id) {
             $memberData = $this->memberModel->get_member_by_id($member_id);
@@ -52,6 +55,24 @@ class Partner {
                 $membershipType = $this->memberModel->get_membership_type($memberData['membership_type_id']);
                 $memberData['membership_type'] = $membershipType;
                 
+                // Get only this partner's benefits for the member
+                $membership_type_id = $memberData['membership_type_id'];
+                
+                $memberData['benefits'] = [
+                    'standard_discounts' => $this->benefitsModel->get_standard_discounts(
+                        $membership_type_id, 
+                        ['partner_id' => $partner_id]
+                    ),
+                    'special_offers' => $this->benefitsModel->get_special_offers(
+                        $membership_type_id, 
+                        ['partner_id' => $partner_id]
+                    ),
+                    'advantages' => $this->benefitsModel->get_advantages(
+                        $membership_type_id, 
+                        ['partner_id' => $partner_id]
+                    )
+                ];
+
                 $_SESSION['verified_member'] = $memberData;
                 header('Location: /partner?verified=1');
                 return;

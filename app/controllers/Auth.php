@@ -40,10 +40,10 @@ class Auth {
     private function redirect_user($user_type) {
         switch ($user_type) {
             case 'member':
-                header('Location: /member/dashboard');
+                header('Location: /member');
                 break;
             case 'partner':
-                header('Location: /partner/dashboard');
+                header('Location: /partner');
                 break;
             case 'admin':
                 header('Location: /admin/dashboard');

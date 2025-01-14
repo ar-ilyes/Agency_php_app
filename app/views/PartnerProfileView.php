@@ -198,6 +198,112 @@ class PartnerProfileView extends BaseView {
                             </div>
                         </div>
                     </div>
+                    <div class="mt-8 space-y-6">
+                <!-- Standard Discounts -->
+                <?php if(!empty($verifiedMember['benefits']['standard_discounts'])): ?>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <span class="text-blue-600 mr-2">
+                                <svg class="inline-block w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+                                </svg>
+                            </span>
+                            Eligible Standard Discounts
+                        </h3>
+                        <div class="space-y-4">
+                            <?php foreach($verifiedMember['benefits']['standard_discounts'] as $discount): ?>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <h4 class="font-medium"><?= htmlspecialchars($discount['description']) ?></h4>
+                                        <p class="text-sm text-gray-600">
+                                            Type: <?= htmlspecialchars($discount['discount_type']) ?>
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-lg font-bold text-green-600">
+                                            <?= htmlspecialchars($discount['discount_value']) ?>%
+                                        </span>
+                                        <?php if($discount['bonus_value']): ?>
+                                            <p class="text-sm text-blue-600">
+                                                +<?= htmlspecialchars($discount['bonus_value']) ?>% bonus
+                                            </p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Special Offers -->
+                <?php if(!empty($verifiedMember['benefits']['special_offers'])): ?>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <span class="text-purple-600 mr-2">
+                                <svg class="inline-block w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5 2a1 1 0 011-1h8a1 1 0 011 1v2h3a1 1 0 011 1v12a1 1 0 01-1 1H2a1 1 0 01-1-1V5a1 1 0 011-1h3V2zm1 3H3v11h14V5h-3v1a1 1 0 01-1 1H7a1 1 0 01-1-1V5zm2-2v2h4V3H8z"/>
+                                </svg>
+                            </span>
+                            Special Offers Available
+                        </h3>
+                        <div class="space-y-4">
+                            <?php foreach($verifiedMember['benefits']['special_offers'] as $offer): ?>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-medium"><?= htmlspecialchars($offer['description']) ?></h4>
+                                        <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                                            <?= htmlspecialchars($offer['offer_type']) ?>
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm">
+                                        <p class="text-gray-600">
+                                            Valid until: <?= date('M d, Y', strtotime($offer['end_date'])) ?>
+                                        </p>
+                                        <span class="font-bold text-green-600">
+                                            Save <?= htmlspecialchars($offer['discount_value']) ?>%
+                                            <?php if($offer['bonus_value']): ?>
+                                                + <?= htmlspecialchars($offer['bonus_value']) ?>% bonus
+                                            <?php endif; ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Advantages -->
+                <?php if(!empty($verifiedMember['benefits']['advantages'])): ?>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <span class="text-yellow-600 mr-2">
+                                <svg class="inline-block w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </span>
+                            Member Advantages
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <?php foreach($verifiedMember['benefits']['advantages'] as $advantage): ?>
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-medium mb-2"><?= htmlspecialchars($advantage['description']) ?></h4>
+                                    <p class="text-sm text-gray-600">
+                                        Type: <?= htmlspecialchars($advantage['advantage_type']) ?>
+                                    </p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if(empty($verifiedMember['benefits']['standard_discounts']) && 
+                        empty($verifiedMember['benefits']['special_offers']) && 
+                        empty($verifiedMember['benefits']['advantages'])): ?>
+                    <div class="text-center py-8 text-gray-500">
+                        No benefits available for this membership type.
+                    </div>
+                <?php endif; ?>
+            </div>
                 <?php endif; ?>
             </div>
         </div>
