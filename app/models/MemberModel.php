@@ -27,13 +27,49 @@ class MemberModel {
         return $c->query($q);
     }
 
-    public function insert_member($data){
-        $c=$this->connect();
-        $q="INSERT INTO members (first_name, last_name, email, address, city, membership_type_id) VALUES ('{$data['first_name']}', '{$data['last_name']}', '{$data['email']}', '{$data['address']}', '{$data['city']}', '{$data['membership_type_id']}')";
-        $this->query($c, $q);
-        $id=$c->lastInsertId();
-        $this->disconnect($c);
-        return $id;
+    public function insert_member($data) {
+        $c = $this->connect();
+        
+        try {
+            // Start transaction
+            $c->beginTransaction();
+            
+            // First, create the user
+            // $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT); TODO: uncomment this line to hash password after
+            $hashedPassword = $data['password'];
+            $stmt = $c->prepare("INSERT INTO users (user_type, email, password) VALUES ('member', :email, :password)");
+            $stmt->execute([
+                ':email' => $data['email'],
+                ':password' => $hashedPassword
+            ]);
+            $userId = $c->lastInsertId();
+            
+            // Then, create the member with the user_id
+            $stmt = $c->prepare("INSERT INTO members (first_name, last_name, email, address, city, membership_type_id, user_id) 
+                                VALUES (:first_name, :last_name, :email, :address, :city, :membership_type_id, :user_id)");
+            $stmt->execute([
+                ':first_name' => $data['first_name'],
+                ':last_name' => $data['last_name'],
+                ':email' => $data['email'],
+                ':address' => $data['address'],
+                ':city' => $data['city'],
+                ':membership_type_id' => $data['membership_type_id'],
+                ':user_id' => $userId
+            ]);
+            $memberId = $c->lastInsertId();
+            
+            // Commit transaction
+            $c->commit();
+            
+            $this->disconnect($c);
+            return $memberId;
+            
+        } catch (PDOException $e) {
+            // Rollback transaction on error
+            $c->rollBack();
+            $this->disconnect($c);
+            throw $e;
+        }
     }
 
     public function update_photo($member_id, $new_path){
@@ -104,5 +140,32 @@ class MemberModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function update_member($member_id, $data) {
+        $c = $this->connect();
+        $q = "UPDATE members SET 
+              first_name = :first_name,
+              last_name = :last_name,
+              email = :email,
+              address = :address,
+              city = :city,
+              photo = :photo
+              WHERE member_id = :member_id";
+        
+        $stmt = $c->prepare($q);
+        $result = $stmt->execute([
+            ':first_name' => $data['first_name'],
+            ':last_name' => $data['last_name'],
+            ':email' => $data['email'],
+            ':address' => $data['address'],
+            ':city' => $data['city'],
+            ':photo' => $data['photo'],
+            ':member_id' => $member_id
+        ]);
+        
+        $this->disconnect($c);
+        return $result;
+    }
+    
 }
 

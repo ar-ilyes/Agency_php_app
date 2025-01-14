@@ -92,6 +92,11 @@ class RegistrationView extends BaseView {
                     <input type="email" id="email" name="email" required 
                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 </div>
+                <div class="md:col-span-2">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+                    <input type="password" id="password" name="password" required 
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
             </div>
         </div>
         <?php
@@ -185,6 +190,7 @@ class RegistrationView extends BaseView {
             'first_name' => $_POST['first_name'],
             'last_name' => $_POST['last_name'],
             'email' => $_POST['email'],
+            'password' => $_POST['password'],
             'address' => $_POST['address'],
             'city' => $_POST['city'],
             'membership_type_id' => intval($_POST['membership_type_id']),

@@ -36,7 +36,7 @@ class Auth {
             $view->afficher_login();
         }
     }
-    
+
     private function redirect_user($user_type) {
         switch ($user_type) {
             case 'member':

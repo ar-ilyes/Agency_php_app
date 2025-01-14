@@ -50,4 +50,5 @@ class PartnerModel {
         $this->disconnect($c);
         return $result;
     }
+
 }

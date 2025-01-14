@@ -21,6 +21,11 @@ class Member
 		$favorites = $this->memberModel->get_member_favorites($member_id);
 		error_log('Favorites: ' . json_encode($favorites));
 
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$this->update();
+			return;
+		}
+
 		// Parse the URL
 		$url = $_GET['url'] ?? '';
 		$urlParts = explode('/', trim($url, '/'));
@@ -59,4 +64,41 @@ class Member
     public function getMembershipType($membership_type_id) {
         return $this->memberModel->get_membership_type($membership_type_id);
     }
+
+	public function update() {
+		$user = $_SESSION['user'];
+		$member_id = $user['entity_id'];
+		
+		// Handle file upload for photo
+		$photo = $_FILES['photo'] ?? null;
+		$photo_path = null;
+		
+		if ($photo && $photo['error'] === UPLOAD_ERR_OK) {
+			$upload_dir = 'uploads/photos/';
+			if (!file_exists($upload_dir)) {
+				mkdir($upload_dir, 0777, true);
+			}
+			
+			$photo_path = $upload_dir . uniqid() . '_' . basename($photo['name']);
+			move_uploaded_file($photo['tmp_name'], $photo_path);
+		}
+		
+		$data = [
+			'first_name' => $_POST['first_name'],
+			'last_name' => $_POST['last_name'],
+			'email' => $_POST['email'],
+			'address' => $_POST['address'],
+			'city' => $_POST['city'],
+			'photo' => $photo_path ?? $_POST['current_photo']
+		];
+		
+		$success = $this->memberModel->update_member($member_id, $data);
+		
+		if ($success) {
+			header('Location: /member?success=1');
+		} else {
+			header('Location: /member?error=1');
+		}
+	}
+	
 }

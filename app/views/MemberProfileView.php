@@ -54,15 +54,69 @@ class MemberProfileView extends BaseView
     }
 
     private function render_profile_header()
-    {
-        $member = $this->data['member'];
-        $membershipType = $this->data['membershipType'];
-    ?>
-        <div class="container mx-auto px-4 py-8">
-            <div class="bg-white rounded-lg shadow-lg p-6 flex flex-wrap md:flex-nowrap gap-8">
-                <!-- Member Info Section -->
-                <div class="w-full md:w-2/3">
-                    <h2 class="text-2xl font-bold mb-6 text-gray-800">Member Information</h2>
+{
+    $member = $this->data['member'];
+    $membershipType = $this->data['membershipType'];
+    $showEditForm = isset($_GET['edit']);
+?>
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-wrap md:flex-nowrap gap-8">
+            <!-- Member Info Section -->
+            <div class="w-full md:w-2/3">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Member Information</h2>
+                    <?php if (!$showEditForm): ?>
+                        <a href="/member?edit=1" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                            Edit Profile
+                        </a>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if ($showEditForm): ?>
+                    <form action="/member" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="current_photo" value="<?= htmlspecialchars($member['photo']) ?>">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-gray-600">First Name</label>
+                                <input type="text" name="first_name" value="<?= htmlspecialchars($member['first_name']) ?>"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-gray-600">Last Name</label>
+                                <input type="text" name="last_name" value="<?= htmlspecialchars($member['last_name']) ?>"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-gray-600">Email</label>
+                                <input type="email" name="email" value="<?= htmlspecialchars($member['email']) ?>"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-gray-600">City</label>
+                                <input type="text" name="city" value="<?= htmlspecialchars($member['city']) ?>"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                            </div>
+                            <div class="space-y-2 col-span-2">
+                                <label class="text-gray-600">Address</label>
+                                <input type="text" name="address" value="<?= htmlspecialchars($member['address']) ?>"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                            </div>
+                            <div class="space-y-2 col-span-2">
+                                <label class="text-gray-600">Photo</label>
+                                <input type="file" name="photo" accept="image/*"
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end space-x-4">
+                            <a href="/member" class="px-4 py-2 border rounded hover:bg-gray-50">Cancel</a>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                <?php else: ?>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <p class="text-gray-600">Member ID</p>
@@ -89,21 +143,23 @@ class MemberProfileView extends BaseView
                             <p class="font-medium"><?= htmlspecialchars($membershipType['name'] ?? 'Standard') ?></p>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Member Card Section -->
-                <div class="w-full md:w-1/3">
-                    <div class="bg-gray-100 rounded-lg p-4 aspect-[3/2] relative overflow-hidden">
-                        <img src="<?= htmlspecialchars($this->card ?? '/cards/default_card.png') ?>" alt="Member Photo" class="w-full h-full object-cover rounded">
-                        <div class="absolute bottom-4 left-4 bg-white px-3 py-1 rounded-full text-sm">
-                            Valid until: 03/20/2025
-                        </div>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Member Card Section -->
+            <div class="w-full md:w-1/3">
+                <div class="bg-gray-100 rounded-lg p-4 aspect-[3/2] relative overflow-hidden">
+                    <img src="<?= htmlspecialchars($this->card ?? '/cards/default_card.png') ?>" 
+                         alt="Member Photo" class="w-full h-full object-cover rounded">
+                    <div class="absolute bottom-4 left-4 bg-white px-3 py-1 rounded-full text-sm">
+                        Valid until: 03/20/2025
                     </div>
                 </div>
             </div>
         </div>
-    <?php
-    }
+    </div>
+<?php
+}
 
 
     private function render_favorites_section() {

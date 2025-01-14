@@ -18,6 +18,7 @@ class Register {
                 'first_name' => $_POST['first_name'],
                 'last_name' => $_POST['last_name'],
                 'email' => $_POST['email'],
+                'password' => $_POST['password'],
                 'address' => $_POST['address'],
                 'city' => $_POST['city'],
                 'membership_type_id' => intval($_POST['membership_type_id']),
@@ -86,7 +87,7 @@ class Register {
         } else {
             return false; // Handle file upload error
         }
-        $this->generate_card(17);
+        $this->generate_card($member_id);
 
 
         return true; // Successfully registered the member
