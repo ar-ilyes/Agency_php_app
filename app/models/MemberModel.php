@@ -76,5 +76,33 @@ class MemberModel {
         return $result;
     }
     
+    public function get_member_favorites($member_id) {
+        $c = $this->connect();
+        $q = "SELECT p.* FROM favorites f 
+              JOIN PARTNER p ON f.partner_id = p.id 
+              WHERE f.member_id = '{$member_id}'";
+        $result = $this->query($c, $q)->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
+
+    public function add_favorite($member_id, $partner_id) {
+        $c = $this->connect();
+        $q = "INSERT IGNORE INTO favorites (member_id, partner_id) 
+              VALUES ('{$member_id}', '{$partner_id}')";
+        $result = $this->query($c, $q);
+        $this->disconnect($c);
+        return $result;
+    }
+
+    public function remove_favorite($member_id, $partner_id) {
+        $c = $this->connect();
+        $q = "DELETE FROM favorites 
+              WHERE member_id = '{$member_id}' 
+              AND partner_id = '{$partner_id}'";
+        $result = $this->query($c, $q);
+        $this->disconnect($c);
+        return $result;
+    }
 }
 

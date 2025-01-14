@@ -32,7 +32,7 @@ class BenefitsModel {
                 p.city as partner_city,
                 de.bonus_value
             FROM STANDARD_DISCOUNT sd
-            JOIN PARTNER p ON sd.partner_id = p.id
+            JOIN PARTNER p ON sd.id = p.id
             JOIN DISCOUNT_ELIGIBILITY de ON sd.id = de.discount_id
             WHERE de.membership_type_id = ? AND de.is_eligible = 1
         ";
@@ -71,7 +71,7 @@ class BenefitsModel {
                 p.city as partner_city,
                 oe.bonus_value
             FROM SPECIAL_OFFER so
-            JOIN PARTNER p ON so.partner_id = p.id
+            JOIN PARTNER p ON so.id = p.id
             JOIN OFFER_ELIGIBILITY oe ON so.id = oe.offer_id
             WHERE oe.membership_type_id = ? 
             AND oe.is_eligible = 1
@@ -109,7 +109,7 @@ class BenefitsModel {
                 p.category as partner_category,
                 p.city as partner_city
             FROM ADVANTAGE a
-            JOIN PARTNER p ON a.partner_id = p.id
+            JOIN PARTNER p ON a.id = p.id
             JOIN ADVANTAGE_ELIGIBILITY ae ON a.id = ae.advantage_id
             WHERE ae.membership_type_id = ? AND ae.is_eligible = 1
         ";

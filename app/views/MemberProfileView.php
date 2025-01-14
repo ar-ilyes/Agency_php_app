@@ -106,16 +106,16 @@ class MemberProfileView extends BaseView
     }
 
 
-    private function render_favorites_section()
-    {
+    private function render_favorites_section() {
+        $favorites = $this->data['favorites'];
     ?>
         <div class="container mx-auto px-4 py-8">
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">Favorite Partners</h2>
-                    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                    <a href="/partnerSelect" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
                         Add Favorite Partner
-                    </button>
+                    </a>
                 </div>
                 
                 <!-- Favorites Table -->
@@ -129,26 +129,18 @@ class MemberProfileView extends BaseView
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            <?php for($i = 1; $i <= 5; $i++): ?>
+                            <?php foreach ($favorites as $favorite): ?>
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4">Partner <?= $i ?></td>
-                                <td class="px-6 py-4">City <?= $i ?></td>
+                                <td class="px-6 py-4"><?= htmlspecialchars($favorite['name']) ?></td>
+                                <td class="px-6 py-4"><?= htmlspecialchars($favorite['city']) ?></td>
                                 <td class="px-6 py-4">
-                                    <button class="text-red-600 hover:text-red-800">Remove</button>
+                                    <a href="/member/remove-favorite/<?= $favorite['id'] ?>" 
+                                       class="text-red-600 hover:text-red-800">Remove</a>
                                 </td>
                             </tr>
-                            <?php endfor; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
-                </div>
-                
-                <!-- Pagination -->
-                <div class="flex justify-center gap-2 mt-4">
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">Previous</button>
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded">1</button>
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">2</button>
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">3</button>
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">Next</button>
                 </div>
             </div>
         </div>
