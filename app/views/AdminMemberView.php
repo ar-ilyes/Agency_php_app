@@ -187,11 +187,18 @@ class AdminMemberView extends BaseView {
                             <form method="POST" action="/adminMember/approve" class="inline">
                                 <input type="hidden" name="member_id" value="<?= $member['member_id'] ?>">
                                 <button type="submit"
-                                        class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                                        class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors mb-2">
                                     Approve
                                 </button>
                             </form>
                             <?php endif; ?>
+                            <form method="POST" action="/adminMember/delete" class="inline">
+                                <input type="hidden" name="member_id" value="<?= $member['member_id'] ?>">
+                                <button type="submit"
+                                        class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                                    delete
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     <?php endforeach; ?>

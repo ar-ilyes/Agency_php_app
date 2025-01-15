@@ -20,6 +20,10 @@ class AdminMember {
                 $this->approve();
                 return;
             }
+            if (count($urlParts) === 2 && $urlParts[0] === 'adminMember' && $urlParts[1] === 'delete') {
+                $this->delete();
+                return;
+            }
         }
 
         // Get filters from GET parameters
@@ -31,6 +35,7 @@ class AdminMember {
             'date_to' => $_GET['date_to'] ?? null,
             'membership_type_id' => $_GET['membership_type_id'] ?? null
         ];
+
 
         // Get members with filters
         $members = $this->memberModel->get_filtered_members($filters);
@@ -66,6 +71,22 @@ class AdminMember {
             header('Location: /adminMember?success=approved');
         } else {
             header('Location: /adminMember?error=approve_failed');
+        }
+    }
+
+    public function delete() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /adminMember');
+            return;
+        }
+
+        $member_id = $_POST['member_id'];
+        $success = $this->memberModel->delete_member($member_id);
+
+        if ($success) {
+            header('Location: /adminMember?success=deleted');
+        } else {
+            header('Location: /adminMember?error=deletion_failed');
         }
     }
 }

@@ -224,5 +224,14 @@ class MemberModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function delete_member($member_id) {
+        $c = $this->connect();
+        $query = "DELETE FROM members WHERE member_id = :member_id";
+        $stmt = $c->prepare($query);
+        $result = $stmt->execute([':member_id' => $member_id]);
+        $this->disconnect($c);
+        return $result;
+    }
 }
 
