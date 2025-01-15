@@ -115,8 +115,8 @@ class AdminPartnerView extends BaseView {
                                         Delete
                                     </button>
                                 </form>
-                                <a href="/adminPartner/<?= $partner['id'] ?>/benefits"
-                                   class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                                <a href="/adminPartnerBenefits/<?= $partner['id'] ?>"
+                                class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
                                     Benefits
                                 </a>
                             </div>
@@ -222,7 +222,7 @@ class AdminPartnerView extends BaseView {
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Name</label>
                                 <input type="text" name="name" id="edit_name" required
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
                             </div>
                             
                             <div>

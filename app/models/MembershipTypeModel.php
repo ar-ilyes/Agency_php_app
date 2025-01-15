@@ -28,13 +28,13 @@ class MembershipTypeModel {
     }
 
     public function get_all(){
-        echo "get_all";
         $c=$this->connect();
         $q="SELECT * FROM membership_types";
-        echo $q;
         $r=$this->query($c, $q);
+        //how to print the result
+        $result = $r->fetchAll(PDO::FETCH_ASSOC);
         $this->disconnect($c);
-        return $r;
+        return $result;
         // return [
         //     1 => ['membership_type_id' => 1, 'name' => 'Basic'],
         //     2 => ['membership_type_id' => 2, 'name' => 'Premium'],
