@@ -6,6 +6,7 @@ class AdminDonationView extends BaseView {
     
     public function index() {
         $this->renderHead();
+        $this->render_statistics();
         $this->render_filters();
         $this->render_donations_table();
     }
@@ -135,6 +136,69 @@ class AdminDonationView extends BaseView {
         <?php
     }
     
+    private function render_statistics() {
+        ?>
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h2 class="text-2xl font-bold mb-6">Donation Statistics</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-blue-800">Total Donations</h3>
+                        <p class="text-3xl font-bold text-blue-600"><?= $this->data['stats']['total_donations'] ?></p>
+                    </div>
+                    
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-800">Total Amount</h3>
+                        <p class="text-3xl font-bold text-green-600">$<?= number_format($this->data['stats']['total_amount'], 2) ?></p>
+                    </div>
+                    
+                    <div class="bg-yellow-50 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-yellow-800">Average Donation</h3>
+                        <p class="text-3xl font-bold text-yellow-600">$<?= number_format($this->data['stats']['average_donation'], 2) ?></p>
+                    </div>
+                    
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-purple-800">Status Breakdown</h3>
+                        <div class="space-y-2 mt-2">
+                            <?php foreach ($this->data['stats']['donations_by_status'] as $status => $count): ?>
+                            <div class="flex justify-between">
+                                <span><?= $status ? 'Validated' : 'Pending' ?></span>
+                                <span class="font-semibold"><?= $count ?></span>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold mb-4">Monthly Donations</h3>
+                    <div class="bg-white rounded-lg overflow-hidden">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Month</th>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Number of Donations</th>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <?php foreach ($this->data['stats']['monthly_donations'] as $month): ?>
+                                <tr>
+                                    <td class="px-6 py-4"><?= date('F Y', strtotime($month['month'] . '-01')) ?></td>
+                                    <td class="px-6 py-4"><?= $month['count'] ?></td>
+                                    <td class="px-6 py-4">$<?= number_format($month['total_amount'], 2) ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
     public function setData($data) {
         $this->data = $data;
     }

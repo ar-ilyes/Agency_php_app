@@ -35,12 +35,21 @@ class AdminDonation {
         
         // Get donations with filters
         $donations = $this->donationModel->get_all_donations($filters);
+
+        $donationStats = [
+            'total_donations' => $this->donationModel->get_total_donations(),
+            'total_amount' => $this->donationModel->get_total_amount(),
+            'donations_by_status' => $this->donationModel->get_donations_by_status(),
+            'average_donation' => $this->donationModel->get_average_donation(),
+            'monthly_donations' => $this->donationModel->get_monthly_donations()
+        ];
         
         // Create view instance and pass data
         $view = new AdminDonationView();
         $view->setData([
             'donations' => $donations,
-            'filters' => $filters
+            'filters' => $filters,
+            'stats' => $donationStats
         ]);
         $view->setController($this);
         $view->index();

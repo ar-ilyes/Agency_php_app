@@ -163,4 +163,54 @@ class EventModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function update_event($event_id, $data) {
+        $c = $this->connect();
+        $query = "UPDATE EVENT SET 
+                 title = :title,
+                 description = :description,
+                 date_start = :date_start,
+                 date_end = :date_end,
+                 location = :location,
+                 max_volunteers = :max_volunteers
+                 WHERE id = :event_id";
+        
+        $stmt = $c->prepare($query);
+        $result = $stmt->execute([
+            ':title' => $data['title'],
+            ':description' => $data['description'],
+            ':date_start' => $data['date_start'],
+            ':date_end' => $data['date_end'],
+            ':location' => $data['location'],
+            ':max_volunteers' => $data['max_volunteers'],
+            ':event_id' => $event_id
+        ]);
+        
+        $this->disconnect($c);
+        return $result;
+    }
+    
+    public function get_total_events() {
+        $c = $this->connect();
+        $query = "SELECT COUNT(*) FROM EVENT WHERE date_end >= CURRENT_TIMESTAMP";
+        $result = $c->query($query)->fetchColumn();
+        $this->disconnect($c);
+        return $result;
+    }
+    
+    public function get_total_volunteers() {
+        $c = $this->connect();
+        $query = "SELECT COUNT(*) FROM EVENT_VOLUNTEER";
+        $result = $c->query($query)->fetchColumn();
+        $this->disconnect($c);
+        return $result;
+    }
+    
+    public function get_volunteers_by_status() {
+        $c = $this->connect();
+        $query = "SELECT status, COUNT(*) as count FROM EVENT_VOLUNTEER GROUP BY status";
+        $result = $c->query($query)->fetchAll(PDO::FETCH_KEY_PAIR);
+        $this->disconnect($c);
+        return $result;
+    }
 }

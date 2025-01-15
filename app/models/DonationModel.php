@@ -89,4 +89,52 @@ class DonationModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function get_total_donations() {
+        $c = $this->connect();
+        $query = "SELECT COUNT(*) FROM DONATION";
+        $result = $c->query($query)->fetchColumn();
+        $this->disconnect($c);
+        return $result;
+    }
+    
+    public function get_total_amount() {
+        $c = $this->connect();
+        $query = "SELECT SUM(amount) FROM DONATION WHERE is_validated = 1";
+        $result = $c->query($query)->fetchColumn();
+        $this->disconnect($c);
+        return $result ?? 0;
+    }
+    
+    public function get_donations_by_status() {
+        $c = $this->connect();
+        $query = "SELECT is_validated, COUNT(*) as count FROM DONATION GROUP BY is_validated";
+        $result = $c->query($query)->fetchAll(PDO::FETCH_KEY_PAIR);
+        $this->disconnect($c);
+        return $result;
+    }
+    
+    public function get_average_donation() {
+        $c = $this->connect();
+        $query = "SELECT AVG(amount) FROM DONATION WHERE is_validated = 1";
+        $result = $c->query($query)->fetchColumn();
+        $this->disconnect($c);
+        return $result ?? 0;
+    }
+    
+    public function get_monthly_donations() {
+        $c = $this->connect();
+        $query = "SELECT 
+                    DATE_FORMAT(donation_date, '%Y-%m') as month,
+                    COUNT(*) as count,
+                    SUM(amount) as total_amount
+                  FROM DONATION 
+                  WHERE is_validated = 1
+                  GROUP BY DATE_FORMAT(donation_date, '%Y-%m')
+                  ORDER BY month DESC
+                  LIMIT 12";
+        $result = $c->query($query)->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
 }

@@ -27,6 +27,9 @@ class AdminEvent {
                     case 'updateVolunteer':
                         $this->update_volunteer();
                         return;
+                    case 'update':
+                        $this->update();
+                        return;
                 }
             }
         }
@@ -36,11 +39,18 @@ class AdminEvent {
         foreach ($events as &$event) {
             $event['volunteers'] = $this->eventModel->get_event_volunteers($event['id']);
         }
+
+        $eventStats = [
+            'total_events' => $this->eventModel->get_total_events(),
+            'total_volunteers' => $this->eventModel->get_total_volunteers(),
+            'volunteers_by_status' => $this->eventModel->get_volunteers_by_status()
+        ];
         
         // Create view instance and pass data
         $view = new AdminEventView();
         $view->setData([
-            'events' => $events
+            'events' => $events,
+            'stats' => $eventStats
         ]);
         $view->setController($this);
         $view->index();
@@ -101,6 +111,31 @@ class AdminEvent {
             header('Location: /adminEvent?success=volunteer_updated');
         } else {
             header('Location: /adminEvent?error=volunteer_update_failed');
+        }
+    }
+
+    public function update() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /adminEvent');
+            return;
+        }
+        
+        $event_id = $_POST['event_id'];
+        $data = [
+            'title' => $_POST['title'],
+            'description' => $_POST['description'],
+            'date_start' => $_POST['date_start'],
+            'date_end' => $_POST['date_end'],
+            'location' => $_POST['location'],
+            'max_volunteers' => $_POST['max_volunteers']
+        ];
+        
+        $success = $this->eventModel->update_event($event_id, $data);
+        
+        if ($success) {
+            header('Location: /adminEvent?success=updated');
+        } else {
+            header('Location: /adminEvent?error=update_failed');
         }
     }
 }
