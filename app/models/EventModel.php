@@ -101,4 +101,66 @@ class EventModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function create_event($data) {
+        $c = $this->connect();
+        $query = "INSERT INTO EVENT (title, description, date_start, date_end, location, max_volunteers) 
+                 VALUES (:title, :description, :date_start, :date_end, :location, :max_volunteers)";
+        
+        $stmt = $c->prepare($query);
+        $result = $stmt->execute([
+            ':title' => $data['title'],
+            ':description' => $data['description'],
+            ':date_start' => $data['date_start'],
+            ':date_end' => $data['date_end'],
+            ':location' => $data['location'],
+            ':max_volunteers' => $data['max_volunteers']
+        ]);
+        
+        $id = $c->lastInsertId();
+        $this->disconnect($c);
+        return $result ? $id : false;
+    }
+
+    public function get_event_volunteers($event_id) {
+        $c = $this->connect();
+        $query = "
+            SELECT ev.*, m.first_name, m.last_name, m.email
+            FROM EVENT_VOLUNTEER ev
+            JOIN members m ON ev.member_id = m.member_id
+            WHERE ev.event_id = :event_id
+            ORDER BY ev.registration_date DESC
+        ";
+        
+        $stmt = $c->prepare($query);
+        $stmt->execute([':event_id' => $event_id]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
+
+    public function update_volunteer_status($volunteer_id, $status) {
+        $c = $this->connect();
+        $query = "UPDATE EVENT_VOLUNTEER SET status = :status WHERE id = :volunteer_id";
+        
+        $stmt = $c->prepare($query);
+        $result = $stmt->execute([
+            ':status' => $status,
+            ':volunteer_id' => $volunteer_id
+        ]);
+        
+        $this->disconnect($c);
+        return $result;
+    }
+
+    public function delete_event($event_id) {
+        $c = $this->connect();
+        $query = "DELETE FROM EVENT WHERE id = :event_id";
+        
+        $stmt = $c->prepare($query);
+        $result = $stmt->execute([':event_id' => $event_id]);
+        
+        $this->disconnect($c);
+        return $result;
+    }
 }
