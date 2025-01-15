@@ -526,4 +526,69 @@ class BenefitsModel {
             $this->disconnect($c);
         }
     }
+
+    public function get_partner_benefits_stats($partner_id) {
+        $c = $this->connect();
+        try {
+            // Get standard discounts count
+            $query = "SELECT COUNT(*) as count FROM STANDARD_DISCOUNT WHERE partner_id = :partner_id";
+            $stmt = $c->prepare($query);
+            $stmt->execute([':partner_id' => $partner_id]);
+            $standard_discounts = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    
+            // Get special offers count
+            $query = "SELECT COUNT(*) as count FROM SPECIAL_OFFER WHERE partner_id = :partner_id";
+            $stmt = $c->prepare($query);
+            $stmt->execute([':partner_id' => $partner_id]);
+            $special_offers = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    
+            // Get advantages count
+            $query = "SELECT COUNT(*) as count FROM ADVANTAGE WHERE partner_id = :partner_id";
+            $stmt = $c->prepare($query);
+            $stmt->execute([':partner_id' => $partner_id]);
+            $advantages = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    
+            // Get members count per membership type who can access this partner's benefits
+            $query = "
+                SELECT mt.name as membership_type, COUNT(DISTINCT m.member_id) as member_count
+                FROM membership_types mt
+                JOIN members m ON mt.membership_type_id = m.membership_type_id
+                WHERE EXISTS (
+                    SELECT 1 FROM DISCOUNT_ELIGIBILITY de
+                    JOIN STANDARD_DISCOUNT sd ON de.discount_id = sd.id
+                    WHERE de.membership_type_id = mt.membership_type_id
+                    AND sd.partner_id = :partner_id
+                    AND de.is_eligible = 1
+                )
+                OR EXISTS (
+                    SELECT 1 FROM OFFER_ELIGIBILITY oe
+                    JOIN SPECIAL_OFFER so ON oe.offer_id = so.id
+                    WHERE oe.membership_type_id = mt.membership_type_id
+                    AND so.partner_id = :partner_id
+                    AND oe.is_eligible = 1
+                )
+                OR EXISTS (
+                    SELECT 1 FROM ADVANTAGE_ELIGIBILITY ae
+                    JOIN ADVANTAGE a ON ae.advantage_id = a.id
+                    WHERE ae.membership_type_id = mt.membership_type_id
+                    AND a.partner_id = :partner_id
+                    AND ae.is_eligible = 1
+                )
+                GROUP BY mt.membership_type_id, mt.name";
+            
+            $stmt = $c->prepare($query);
+            $stmt->execute([':partner_id' => $partner_id]);
+            $members_by_type = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            return [
+                'standard_discounts' => $standard_discounts,
+                'special_offers' => $special_offers,
+                'advantages' => $advantages,
+                'members_by_type' => $members_by_type
+            ];
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
 }

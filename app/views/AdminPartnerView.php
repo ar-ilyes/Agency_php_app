@@ -7,6 +7,7 @@ class AdminPartnerView extends BaseView {
         $this->renderHead();
         $this->render_filters();
         $this->render_partners_table();
+        $this->render_statistics();
         $this->render_create_modal();
         $this->render_edit_modal();
     }
@@ -285,6 +286,49 @@ class AdminPartnerView extends BaseView {
     </script>
     <?php
     }
+
+    private function render_statistics() {
+        ?>
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-6">Partner Statistics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <?php foreach ($this->data['partners'] as $partner): 
+                        $stats = $this->data['partner_stats'][$partner['id']];
+                    ?>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold mb-3"><?= htmlspecialchars($partner['name']) ?></h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Standard Discounts:</span>
+                                <span class="font-medium"><?= $stats['standard_discounts'] ?></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Special Offers:</span>
+                                <span class="font-medium"><?= $stats['special_offers'] ?></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Advantages:</span>
+                                <span class="font-medium"><?= $stats['advantages'] ?></span>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="text-sm font-semibold mb-2">Members by Membership Type:</h4>
+                                <?php foreach ($stats['members_by_type'] as $memberType): ?>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600"><?= htmlspecialchars($memberType['membership_type']) ?>:</span>
+                                    <span class="font-medium"><?= $memberType['member_count'] ?></span>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        <?php
+        }        
+
     public function setData($data) {
         $this->data = $data;
     }

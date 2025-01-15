@@ -45,8 +45,8 @@ class MemberModel {
             $userId = $c->lastInsertId();
             
             // Then, create the member with the user_id
-            $stmt = $c->prepare("INSERT INTO members (first_name, last_name, email, address, city, membership_type_id, user_id) 
-                                VALUES (:first_name, :last_name, :email, :address, :city, :membership_type_id, :user_id)");
+            $stmt = $c->prepare("INSERT INTO members (first_name, last_name, email, address, city, membership_type_id, user_id,is_approved,inscription_date) 
+                                VALUES (:first_name, :last_name, :email, :address, :city, :membership_type_id, :user_id, false, :inscription_date)");
             $stmt->execute([
                 ':first_name' => $data['first_name'],
                 ':last_name' => $data['last_name'],
@@ -54,7 +54,8 @@ class MemberModel {
                 ':address' => $data['address'],
                 ':city' => $data['city'],
                 ':membership_type_id' => $data['membership_type_id'],
-                ':user_id' => $userId
+                ':user_id' => $userId,
+                ':inscription_date' => $data['inscription_date'] ?? date('Y-m-d H:i:s')
             ]);
             $memberId = $c->lastInsertId();
             
@@ -167,5 +168,61 @@ class MemberModel {
         return $result;
     }
     
+
+    public function get_filtered_members($filters = []) {
+        $c = $this->connect();
+        $query = "SELECT m.*, mt.name as membership_type_name 
+                  FROM members m 
+                  JOIN membership_types mt ON m.membership_type_id = mt.membership_type_id 
+                  WHERE 1=1";
+        $params = [];
+    
+        if (isset($filters['is_approved'])) {
+            $query .= " AND m.is_approved = :is_approved";
+            $params[':is_approved'] = $filters['is_approved'];
+        }
+    
+        if (!empty($filters['search'])) {
+            $query .= " AND (m.first_name LIKE :search OR m.last_name LIKE :search OR m.email LIKE :search)";
+            $params[':search'] = "%{$filters['search']}%";
+        }
+    
+        if (!empty($filters['city'])) {
+            $query .= " AND m.city = :city";
+            $params[':city'] = $filters['city'];
+        }
+    
+        if (!empty($filters['date_from'])) {
+            $query .= " AND m.inscription_date >= :date_from";
+            $params[':date_from'] = $filters['date_from'];
+        }
+    
+        if (!empty($filters['date_to'])) {
+            $query .= " AND m.inscription_date <= :date_to";
+            $params[':date_to'] = $filters['date_to'];
+        }
+    
+        if (!empty($filters['membership_type_id'])) {
+            $query .= " AND m.membership_type_id = :membership_type_id";
+            $params[':membership_type_id'] = $filters['membership_type_id'];
+        }
+    
+        $query .= " ORDER BY m.inscription_date DESC";
+    
+        $stmt = $c->prepare($query);
+        $stmt->execute($params);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
+    
+    public function approve_member($member_id) {
+        $c = $this->connect();
+        $query = "UPDATE members SET is_approved = true WHERE member_id = :member_id";
+        $stmt = $c->prepare($query);
+        $result = $stmt->execute([':member_id' => $member_id]);
+        $this->disconnect($c);
+        return $result;
+    }
 }
 

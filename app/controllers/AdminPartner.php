@@ -51,6 +51,12 @@ class AdminPartner {
         $categories = $this->benefitsModel->get_categories();
         $cities = $this->benefitsModel->get_cities();
 
+        // Get statistics for each partner
+        $partner_stats = [];
+        foreach ($partners as $partner) {
+            $partner_stats[$partner['id']] = $this->benefitsModel->get_partner_benefits_stats($partner['id']);
+        }
+
 
         // Create view instance and pass data
         $view = new AdminPartnerView();
@@ -58,7 +64,8 @@ class AdminPartner {
             'partners' => $partners,
             'categories' => $categories,
             'cities' => $cities,
-            'filters' => $filters
+            'filters' => $filters,
+            'partner_stats' => $partner_stats
         ]);
         $view->setController($this);
         $view->index();
