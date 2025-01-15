@@ -30,7 +30,7 @@ class EventModel {
                 COUNT(ev.id) as current_volunteers
             FROM EVENT e
             LEFT JOIN EVENT_VOLUNTEER ev ON e.id = ev.event_id AND ev.status = 'approved'
-            WHERE e.date_end >= CURRENT_TIMESTAMP
+            WHERE e.date_end >= CURRENT_TIMESTAMP AND e.deleted_at IS NULL
             GROUP BY e.id
             ORDER BY e.date_start ASC
         ";
@@ -93,6 +93,8 @@ class EventModel {
             FROM EVENT e
             JOIN EVENT_VOLUNTEER ev ON e.id = ev.event_id
             WHERE ev.member_id = ?
+                AND e.deleted_at IS NULL
+                AND ev.deleted_at IS NULL
             ORDER BY e.date_start ASC
         ";
         $stmt = $c->prepare($query);
@@ -128,7 +130,7 @@ class EventModel {
             SELECT ev.*, m.first_name, m.last_name, m.email
             FROM EVENT_VOLUNTEER ev
             JOIN members m ON ev.member_id = m.member_id
-            WHERE ev.event_id = :event_id
+            WHERE ev.event_id = :event_id AND ev.deleted_at IS NULL
             ORDER BY ev.registration_date DESC
         ";
         
@@ -155,13 +157,37 @@ class EventModel {
 
     public function delete_event($event_id) {
         $c = $this->connect();
-        $query = "DELETE FROM EVENT WHERE id = :event_id";
-        
-        $stmt = $c->prepare($query);
-        $result = $stmt->execute([':event_id' => $event_id]);
-        
-        $this->disconnect($c);
-        return $result;
+        try {
+            $c->beginTransaction();
+            
+            // Get current timestamp
+            $current_time = date('Y-m-d H:i:s');
+            
+            // Soft delete the event
+            $event_query = "UPDATE EVENT SET deleted_at = :deleted_at WHERE id = :event_id";
+            $event_stmt = $c->prepare($event_query);
+            $event_result = $event_stmt->execute([
+                ':deleted_at' => $current_time,
+                ':event_id' => $event_id
+            ]);
+            
+            // Soft delete related volunteer records
+            $volunteer_query = "UPDATE EVENT_VOLUNTEER SET deleted_at = :deleted_at WHERE event_id = :event_id";
+            $volunteer_stmt = $c->prepare($volunteer_query);
+            $volunteer_result = $volunteer_stmt->execute([
+                ':deleted_at' => $current_time,
+                ':event_id' => $event_id
+            ]);
+            
+            $c->commit();
+            $this->disconnect($c);
+            return $event_result && $volunteer_result;
+            
+        } catch (Exception $e) {
+            $c->rollBack();
+            $this->disconnect($c);
+            return false;
+        }
     }
 
     public function update_event($event_id, $data) {
@@ -192,7 +218,7 @@ class EventModel {
     
     public function get_total_events() {
         $c = $this->connect();
-        $query = "SELECT COUNT(*) FROM EVENT WHERE date_end >= CURRENT_TIMESTAMP";
+        $query = "SELECT COUNT(*) FROM EVENT WHERE date_end >= CURRENT_TIMESTAMP AND deleted_at IS NULL";
         $result = $c->query($query)->fetchColumn();
         $this->disconnect($c);
         return $result;
@@ -200,7 +226,7 @@ class EventModel {
     
     public function get_total_volunteers() {
         $c = $this->connect();
-        $query = "SELECT COUNT(*) FROM EVENT_VOLUNTEER";
+        $query = "SELECT COUNT(*) FROM EVENT_VOLUNTEER WHERE deleted_at IS NULL";
         $result = $c->query($query)->fetchColumn();
         $this->disconnect($c);
         return $result;
@@ -208,7 +234,10 @@ class EventModel {
     
     public function get_volunteers_by_status() {
         $c = $this->connect();
-        $query = "SELECT status, COUNT(*) as count FROM EVENT_VOLUNTEER GROUP BY status";
+        $query = "SELECT status, COUNT(*) as count 
+        FROM EVENT_VOLUNTEER 
+        WHERE deleted_at IS NULL 
+        GROUP BY status";
         $result = $c->query($query)->fetchAll(PDO::FETCH_KEY_PAIR);
         $this->disconnect($c);
         return $result;
