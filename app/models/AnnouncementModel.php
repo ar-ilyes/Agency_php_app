@@ -119,4 +119,19 @@ class AnnouncementModel {
         }
     }
 
+    public function get_latest_announcements($limit = 4) {
+        $c = $this->connect();
+        $query = "SELECT *, 'announcement' as type FROM announcements 
+                WHERE deleted_at IS NULL 
+                ORDER BY created_at DESC 
+                LIMIT $limit";
+        
+        $stmt = $c->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
+    
+
 }

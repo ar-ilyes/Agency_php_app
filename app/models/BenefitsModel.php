@@ -32,7 +32,23 @@ class BenefitsModel {
 
     public function get_standard_discounts($membership_type_id, $filters = [], $sort = null) {
         $c = $this->connect();
-        $query = "
+        if($membership_type_id){
+            $query = "
+                SELECT 
+                    sd.*, 
+                    p.name as partner_name,
+                    p.category as partner_category,
+                    p.city as partner_city,
+                    de.bonus_value
+                FROM STANDARD_DISCOUNT sd
+                JOIN PARTNER p ON sd.id = p.id
+                JOIN DISCOUNT_ELIGIBILITY de ON sd.id = de.discount_id
+                WHERE de.membership_type_id = ? AND de.is_eligible = 1
+            ";
+            $params = [$membership_type_id];
+        }
+        else{
+            $query = "
             SELECT 
                 sd.*, 
                 p.name as partner_name,
@@ -40,12 +56,12 @@ class BenefitsModel {
                 p.city as partner_city,
                 de.bonus_value
             FROM STANDARD_DISCOUNT sd
-            JOIN PARTNER p ON sd.id = p.id
+            JOIN PARTNER p ON sd.partner_id = p.id
             JOIN DISCOUNT_ELIGIBILITY de ON sd.id = de.discount_id
-            WHERE de.membership_type_id = ? AND de.is_eligible = 1
-        ";
-        $params = [$membership_type_id];
-        
+            WHERE de.is_eligible = 1
+            ";
+            $params = [];
+        }
         
         // Add filters
         if (!empty($filters['category'])) {
@@ -84,6 +100,7 @@ class BenefitsModel {
 
     public function get_special_offers($membership_type_id, $filters = [], $sort = null) {
         $c = $this->connect();
+        if($membership_type_id){
         $query = "
             SELECT 
                 so.*, 
@@ -99,6 +116,22 @@ class BenefitsModel {
             AND so.end_date >= CURRENT_DATE()
         ";
         $params = [$membership_type_id];
+        }else{
+            $query = "
+            SELECT 
+                so.*, 
+                p.name as partner_name,
+                p.category as partner_category,
+                p.city as partner_city,
+                oe.bonus_value
+            FROM SPECIAL_OFFER so
+            JOIN PARTNER p ON so.partner_id = p.id
+            JOIN OFFER_ELIGIBILITY oe ON so.id = oe.offer_id
+            WHERE oe.is_eligible = 1
+            AND so.end_date >= CURRENT_DATE()
+            ";
+            $params = [];
+        }
         
         if (!empty($filters['category'])) {
             $query .= " AND p.category = ?";
@@ -134,6 +167,7 @@ class BenefitsModel {
 
     public function get_advantages($membership_type_id, $filters = [], $sort = null) {
         $c = $this->connect();
+        if($membership_type_id){
         $query = "
             SELECT 
                 a.*, 
@@ -146,6 +180,20 @@ class BenefitsModel {
             WHERE ae.membership_type_id = ? AND ae.is_eligible = 1
         ";
         $params = [$membership_type_id];
+        }else{
+            $query = "
+                SELECT 
+                    a.*, 
+                    p.name as partner_name,
+                    p.category as partner_category,
+                    p.city as partner_city
+                FROM ADVANTAGE a
+                JOIN PARTNER p ON a.partner_id = p.id
+                JOIN ADVANTAGE_ELIGIBILITY ae ON a.id = ae.advantage_id
+                WHERE ae.is_eligible = 1
+            ";
+            $params = [];
+        }
         
         if (!empty($filters['category'])) {
             $query .= " AND p.category = ?";
@@ -589,6 +637,31 @@ class BenefitsModel {
         } finally {
             $this->disconnect($c);
         }
+    }
+    
+    public function get_latest_advantages($membership_type_id, $limit = 3) {
+        $c = $this->connect();
+        $query = "
+            SELECT 
+                a.*, 
+                p.name as partner_name,
+                p.category as partner_category,
+                p.city as partner_city
+            FROM ADVANTAGE a
+            JOIN PARTNER p ON a.partner_id = p.id
+            JOIN ADVANTAGE_ELIGIBILITY ae ON a.id = ae.advantage_id
+            WHERE ae.membership_type_id = :membership_type_id 
+            AND ae.is_eligible = 1
+            ORDER BY a.created_at DESC
+            LIMIT $limit
+        ";
+        
+        $stmt = $c->prepare($query);
+        $stmt->execute([
+            ':membership_type_id' => $membership_type_id ]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
     }
     
 }

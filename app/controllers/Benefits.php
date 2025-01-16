@@ -9,17 +9,25 @@ class Benefits {
     }
     
     public function index() {
-        $user = $_SESSION['user'];
-        $member_id = $user['entity_id'];
-        
-        if (!$member_id) {
-            header('Location: /error');
-            exit;
+        error_log('Benefits controller index');
+        if(isset($_SESSION['user'])){
+            $user = $_SESSION['user'];
+            $member_id = $user['entity_id'];
+        }else{
+            error_log('No user session');
+            $member_id = null;
         }
         
+        
         $member_model = new MemberModel();
-        $member = $member_model->get_member_by_id($member_id);
-        $membership_type_id = $member['membership_type_id'];
+        if($member_id){
+            $member = $member_model->get_member_by_id($member_id);
+            $membership_type_id = $member['membership_type_id'];
+        }else{
+            $membership_type_id = null;
+        }
+        error_log('Member ID: ' . $member_id);
+        error_log('Membership type ID: ' . $membership_type_id);
         
         // Get filter and sort parameters
         $filters = [
@@ -36,6 +44,8 @@ class Benefits {
         $data['cities'] = $this->benefits_model->get_cities();
         $data['current_filters'] = $filters;
         $data['current_sort'] = $sort;
+
+        error_log('Data :'.json_encode($data));
         
         $view = new BenefitsView();
         $view->afficher_site($data);
@@ -43,6 +53,13 @@ class Benefits {
     
     public function get_member_benefits($membership_type_id, $filters, $sort) {
 
+        if(!$membership_type_id){
+            return [
+                'standard_discounts' => $this->benefits_model->get_standard_discounts($membership_type_id, $filters, $sort),
+                'special_offers' => $this->benefits_model->get_special_offers($membership_type_id, $filters, $sort),
+                'advantages' => $this->benefits_model->get_advantages($membership_type_id, $filters, $sort)
+            ];
+        }
         return [
             'membership_type' => $this->member_model->get_membership_type($membership_type_id),
             'standard_discounts' => $this->benefits_model->get_standard_discounts($membership_type_id, $filters, $sort),

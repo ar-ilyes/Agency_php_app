@@ -24,7 +24,6 @@ class Auth {
                     'type' => $user['user_type'],
                     'email' => $user['email']
                 ];
-                
                 // Redirect based on user type
                 $this->redirect_user($user['user_type']);
             } else {
@@ -46,7 +45,7 @@ class Auth {
                 header('Location: /partner');
                 break;
             case 'admin':
-                header('Location: /admin/dashboard');
+                header('Location: /adminPartner');
                 break;
             default:
                 header('Location: /auth/login');

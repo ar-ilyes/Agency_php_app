@@ -18,7 +18,6 @@ class HomeView extends BaseView
         $this->render_news_section($news_query);
         $this->render_membership_section();
         $this->render_partners_section();
-        $this->render_latest_news_section();
         $this->render_footer();
     }
 
@@ -106,84 +105,84 @@ class HomeView extends BaseView
     <?php
     }
 
-    private function render_news_section($news_query)
-    {
-    ?>
-        <section id="section1" class="bg-gray-100 py-12 px-6 relative">
-            <h2 class="text-3xl font-bold mb-8">News</h2>
-            <a href="fullview1.html" class="absolute top-6 right-6 text-gray-600 hover:text-gray-900">See more</a>
-            
-            <div class="flex justify-center gap-6 flex-wrap">
-                <?php for($i = 1; $i <= 4; $i++): ?>
-                <a href="article<?= $i ?>.html" class="bg-white rounded-lg shadow-lg overflow-hidden w-72 transform hover:-translate-y-2 transition-transform">
-                    <img src="/assets/images/coding_wallpaper_1.jpeg" alt="Image <?= $i ?>" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <p class="text-gray-600">Short description of the news article <?= $i ?>.</p>
-                    </div>
-                </a>
-                <?php endfor; ?>
-            </div>
-        </section>
-    <?php
-    }
-
-    private function render_membership_section()
-    {
-    ?>
-        <section id="section2" class="bg-gray-100 py-12 px-6 relative">
-            <h2 class="text-3xl font-bold mb-8">Membership Advantages</h2>
-            <a href="fullview2.html" class="absolute top-6 right-6 text-gray-600 hover:text-gray-900">See more</a>
-            
-            <div class="flex justify-center gap-6 flex-wrap">
-                <?php for($i = 4; $i <= 6; $i++): ?>
-                <a href="article<?= $i ?>.html" class="bg-white rounded-lg shadow-lg overflow-hidden w-72 transform hover:-translate-y-2 transition-transform">
-                    <img src="/assets/images/coding_wallpaper_1.jpeg" alt="Image <?= $i ?>" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <p class="text-gray-600">Short description of the news article <?= $i ?>.</p>
-                    </div>
-                </a>
-                <?php endfor; ?>
-            </div>
-        </section>
-    <?php
-    }
+    private function render_news_section($news_query) {
+        ?>
+            <section id="section1" class="bg-gray-100 py-12 px-6 relative">
+                <h2 class="text-3xl font-bold mb-8">Latest News & Events</h2>
+                <a href="/news" class="absolute top-6 right-6 text-gray-600 hover:text-gray-900">See more</a>
+                
+                <div class="flex justify-center gap-6 flex-wrap">
+                    <?php foreach($news_query as $item): ?>
+                        <a href="/<?= $item['type'] ?>/<?= $item['id'] ?>" 
+                           class="bg-white rounded-lg shadow-lg overflow-hidden w-72 transform hover:-translate-y-2 transition-transform">
+                            <?php if(!empty($item['image'])): ?>
+                                <img src="<?= htmlspecialchars($item['image']) ?>" 
+                                     alt="<?= htmlspecialchars($item['title']) ?>" 
+                                     class="w-full h-48 object-cover">
+                            <?php endif; ?>
+                            <div class="p-6">
+                                <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($item['title']) ?></h3>
+                                <p class="text-gray-600"><?= htmlspecialchars(substr($item['description'], 0, 100)) ?>...</p>
+                                <div class="mt-4 text-sm text-gray-500">
+                                    <?php if($item['type'] === 'event'): ?>
+                                        <?= date('M d, Y', strtotime($item['date_start'])) ?>
+                                    <?php else: ?>
+                                        <?= date('M d, Y', strtotime($item['created_at'])) ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php
+        }private function render_membership_section() {
+            $benefits = $this->data['benefits'];
+        ?>
+            <section id="section2" class="bg-gray-100 py-12 px-6 relative">
+                <h2 class="text-3xl font-bold mb-8">Membership Advantages</h2>
+                <a href="/benefits" class="absolute top-6 right-6 text-gray-600 hover:text-gray-900">See more</a>
+                
+                <div class="flex justify-center gap-6 flex-wrap">
+                    <?php foreach($benefits as $type): ?>
+                        <div class="w-full md:w-1/6 lg:w-1/6">
+                            <div class="<?= $type['card_color'] ?> rounded-lg p-4 mb-4">
+                                <h3 class="text-xl font-bold mb-2"><?= htmlspecialchars($type['membership_type']['name']) ?></h3>
+                            </div>
+                            <?php foreach($type['advantages'] as $advantage): ?>
+                                <div class="bg-white rounded-lg shadow-lg p-4 mb-4">
+                                    <h4 class="font-bold"><?= htmlspecialchars($advantage['partner_name']) ?></h4>
+                                    <p class="text-gray-600"><?= htmlspecialchars($advantage['description']) ?></p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php
+        }
 
     private function render_partners_section()
     {
+        $partners = $this->data['partners'];
     ?>
-        <section class="bg-gray-100 py-12 px-6 text-center">
+        <section class="bg-gray-100 pt-12 pb-20 px-6 text-center ">
             <h2 class="text-3xl font-bold mb-8">Our Partners</h2>
             <div class="flex flex-wrap justify-center gap-6">
-                <?php for($i = 1; $i <= 5; $i++): ?>
-                <img src="/assets/images/coding_wallpaper_1.jpeg" 
-                     alt="Partner <?= $i ?>" 
-                     class="w-24 h-24 rounded-full object-cover border-2 border-gray-300 transform hover:scale-110 transition-transform">
-                <?php endfor; ?>
+                <?php foreach($partners as $partner): ?>
+                <div class="w-24 h-24 rounded-full border-2 border-gray-300 transform hover:scale-110 transition-transform">
+                    <img src="/<?= htmlspecialchars($partner['logo']) ?>" 
+                         alt="<?= htmlspecialchars($partner['name']) ?>" 
+                         class="w-full h-full object-cover">
+                    <div class="text-sm mt-2"><?= htmlspecialchars($partner['name']) ?></div>
+                    <div class="text-xs text-gray-500"><?= htmlspecialchars($partner['city']) ?></div>
+                </div>
+                <?php endforeach; ?>
             </div>
         </section>
     <?php
     }
 
-    private function render_latest_news_section()
-    {
-    ?>
-        <section class="bg-gray-100 py-12 px-6 text-center">
-            <h2 class="text-3xl font-bold mb-2">Our Latest News</h2>
-            <p class="text-xl text-gray-600 mb-10">Discover what we have been up to lately!</p>
-            
-            <div class="flex justify-center gap-6 flex-wrap">
-                <?php for($i = 1; $i <= 3; $i++): ?>
-                <a href="article<?= $i ?>.html" class="bg-white rounded-lg shadow-lg overflow-hidden w-72 transform hover:-translate-y-2 transition-transform">
-                    <img src="/assets/images/coding_wallpaper_1.jpeg" alt="News Image <?= $i ?>" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <p class="text-gray-600">Short description of the news article <?= $i ?>.</p>
-                    </div>
-                </a>
-                <?php endfor; ?>
-            </div>
-        </section>
-    <?php
-    }
 
     private function render_footer()
     {
@@ -232,5 +231,13 @@ class HomeView extends BaseView
             </ul>
         </nav>
     <?php
+    }
+
+    public function setData($data) {
+        $this->data = $data;
+    }
+
+    public function setController($controller) {
+        $this->controller = $controller;
     }
 }

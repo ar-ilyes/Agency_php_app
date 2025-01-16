@@ -29,7 +29,7 @@ class PartnerModel {
 
     public function get_all_partners() {
         $c = $this->connect();
-        $q = "SELECT id, name, city, category FROM PARTNER";
+        $q = "SELECT id, name, city, category , logo FROM PARTNER";
         $result = $this->query($c, $q)->fetchAll(PDO::FETCH_ASSOC);
         $this->disconnect($c);
         return $result;

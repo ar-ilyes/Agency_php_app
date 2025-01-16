@@ -242,4 +242,19 @@ class EventModel {
         $this->disconnect($c);
         return $result;
     }
+    public function get_latest_events($limit = 4) {
+        $c = $this->connect();
+        $query = "SELECT *, 'event' as type FROM EVENT 
+                 WHERE date_end >= CURRENT_TIMESTAMP 
+                 AND deleted_at IS NULL 
+                 ORDER BY date_start ASC 
+                 LIMIT $limit";
+        
+        $stmt = $c->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
+    
 }
