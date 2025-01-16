@@ -25,7 +25,12 @@ class HomeView extends BaseView
     {
     ?>
         <nav class="bg-gray-800 px-6 py-4 flex justify-between items-center">
-            <a href="#" class="text-white text-2xl font-bold">MyLogo</a>
+            <div class="flex-shrink-0 flex items-center">
+                <a href="/" class="flex items-center">
+                    <img class="h-8 w-auto" src="/assets/images/charity.png" alt="Logo">
+                    <span class="ml-2 text-white text-lg font-semibold">Association</span>
+                </a>
+            </div>
             <div class="flex gap-6">
                 <a href="#" class="text-white hover:text-gray-300 transition-colors" target="_blank">Facebook</a>
                 <a href="#" class="text-white hover:text-gray-300 transition-colors" target="_blank">Twitter</a>
