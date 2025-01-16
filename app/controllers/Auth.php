@@ -15,8 +15,8 @@ class Auth {
             $user = $this->user_model->verify_user($email);
             echo json_encode($user);
             
-            // if ($user && password_verify($password, $user['password'])) { //TODO: Uncomment this line to enable password hashing
-            if ($user && $password === $user['password']) {//keeping this for testing bark
+            if ($user && password_verify($password, $user['password'])) { //TODO: Uncomment this line to enable password hashing
+            // if ($user && $password === $user['password']) {//keeping this for testing bark
 
                 $_SESSION['user'] = [
                     'user_id' => $user['id'], // User table ID

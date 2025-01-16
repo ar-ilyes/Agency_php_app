@@ -41,4 +41,13 @@ class UserModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function update_password($user_id, $hashedPassword) {
+        // $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        // $stmt->execute([$hashedPassword, $user_id]);
+        $c = $this->connect();
+        $stmt = $c->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt->execute([$hashedPassword, $user_id]);
+        $this->disconnect($c);
+    }
 }

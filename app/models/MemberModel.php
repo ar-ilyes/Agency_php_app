@@ -34,8 +34,8 @@ class MemberModel {
             $c->beginTransaction();
             
             
-            // $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT); //TODO: uncomment this line to hash password after
-            $hashedPassword = $data['password'];//keeping this for testing
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT); //TODO: uncomment this line to hash password after
+            // $hashedPassword = $data['password'];//keeping this for testing
             $stmt = $c->prepare("INSERT INTO users (user_type, email, password) VALUES ('member', :email, :password)");
             $stmt->execute([
                 ':email' => $data['email'],

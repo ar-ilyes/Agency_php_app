@@ -101,8 +101,8 @@ class PartnerModel {
             $userResult = $userStmt->execute([
                 ':user_type' => 'partner', 
                 ':email' => $data['email'],
-                // ':password' => password_hash($data['password'], PASSWORD_DEFAULT) //TODO : uncomment after
-                ':password' => $data['password'] //for testing
+                ':password' => password_hash($data['password'], PASSWORD_DEFAULT) //TODO : uncomment after
+                // ':password' => $data['password'] //for testing
             ]);
             
             if (!$userResult) {
