@@ -249,5 +249,25 @@ class MemberModel {
             $this->disconnect($c);
         }
     }
+
+    public function upgrade_membership($member_id, $data) {
+        $c = $this->connect();
+        $query = "UPDATE members 
+                SET membership_type_id = :membership_type_id,
+                    payment_receipt = :payment_receipt,
+                    is_approved = false
+                WHERE member_id = :member_id";
+                    
+        $stmt = $c->prepare($query);
+        $result = $stmt->execute([
+            ':membership_type_id' => $data['membership_type_id'],
+            ':payment_receipt' => $data['payment_receipt'],
+            ':member_id' => $member_id
+        ]);
+        
+        $this->disconnect($c);
+        return $result;
+    }
+
 }
 

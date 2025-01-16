@@ -142,6 +142,12 @@ class MemberProfileView extends BaseView
                             <p class="text-gray-600">Membership Type</p>
                             <p class="font-medium"><?= htmlspecialchars($membershipType['name'] ?? 'Standard') ?></p>
                         </div>
+                        <div class="space-y-2">
+                            <button onclick="document.getElementById('upgradeModal').style.display='block'" 
+                                    class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors">
+                                Upgrade Membership
+                            </button>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>
@@ -154,6 +160,63 @@ class MemberProfileView extends BaseView
                     <div class="absolute bottom-4 left-4 bg-white px-3 py-1 rounded-full text-sm">
                         Valid until: 03/20/2025
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Upgrade Modal -->
+    <div id="upgradeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold mb-4">Upgrade Membership</h3>
+                    <form action="/member/upgrade" method="POST" enctype="multipart/form-data">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">New Membership Type</label>
+                                <select name="membership_type_id" required
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                                    <?php 
+                                    $membershipTypeModel = new MembershipTypeModel();
+                                    $types = $membershipTypeModel->get_all();
+                                    foreach ($types as $type):
+                                        if ($type['membership_type_id'] != $member['membership_type_id']):
+                                    ?>
+                                    <option value="<?= htmlspecialchars($type['membership_type_id']) ?>">
+                                        <?= htmlspecialchars($type['name']) ?>
+                                    </option>
+                                    <?php 
+                                        endif;
+                                    endforeach; 
+                                    ?>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Payment Receipt</label>
+                                <input type="file" 
+                                    name="payment_receipt" 
+                                    accept="image/*"
+                                    required
+                                    class="mt-1 block w-full">
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Please upload proof of payment for your new membership type
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button type="button" 
+                                    onclick="document.getElementById('upgradeModal').style.display='none'"
+                                    class="px-4 py-2 border rounded hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                                Submit Upgrade Request
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

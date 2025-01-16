@@ -19,16 +19,22 @@ class Member
         // Get membership type
         $membershipType = $this->memberModel->get_membership_type($memberData['membership_type_id']);
 		$favorites = $this->memberModel->get_member_favorites($member_id);
-		error_log('Favorites: ' . json_encode($favorites));
-
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			$this->update();
-			return;
-		}
+		error_log('Favorites: ' . json_encode($favorites));// bach ntesti
 
 		// Parse the URL
 		$url = $_GET['url'] ?? '';
 		$urlParts = explode('/', trim($url, '/'));
+
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			if (count($urlParts) === 2 && $urlParts[1] === 'upgrade') {
+				echo 'upgrade';
+				$this->upgrade();
+				return;
+			}else{
+			$this->update();
+			return;
+			}
+		}
 	
 		// Check if the URL matches the pattern /member/remove-favorite/{id}
 		if (count($urlParts) === 3 && $urlParts[0] === 'member' && $urlParts[1] === 'remove-favorite') {
@@ -36,6 +42,7 @@ class Member
 			$this->remove_favorite($favoriteId);
 			return;
 		}
+		
         
 		// get history data
 		$donationModel = new DonationModel();
@@ -112,5 +119,40 @@ class Member
 			header('Location: /member?error=1');
 		}
 	}
+
+	public function upgrade() {
+		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+			header('Location: /member');
+			return;
+		}
+		
+		$user = $_SESSION['user'];
+		$member_id = $user['entity_id'];
+		
+		// Handle payment receipt upload
+		$receipt = $_FILES['payment_receipt'] ?? null;
+		$receipt_path = null;
+		if ($receipt && $receipt['error'] === UPLOAD_ERR_OK) {
+			$upload_dir = 'uploads/receipts/';
+			if (!file_exists($upload_dir)) {
+				mkdir($upload_dir, 0777, true);
+			}
+			$receipt_path = $upload_dir . uniqid() . '_' . basename($receipt['name']);
+			move_uploaded_file($receipt['tmp_name'], $receipt_path);
+		}
+		
+		$data = [
+			'membership_type_id' => $_POST['membership_type_id'],
+			'payment_receipt' => $receipt_path
+		];
+		
+		$success = $this->memberModel->upgrade_membership($member_id, $data);
+		if ($success) {
+			header('Location: /member?success=upgraded');
+		} else {
+			header('Location: /member?error=upgrade_failed');
+		}
+	}
+
 	
 }
