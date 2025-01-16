@@ -210,43 +210,127 @@ class MemberProfileView extends BaseView
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-2xl font-bold mb-6 text-gray-800">Activity History</h2>
                 
-                <!-- History Table -->
-                <div class="overflow-x-auto">
+                <!-- Tabs -->
+                <div class="mb-6 border-b">
+                    <div class="flex space-x-8">
+                        <button onclick="showTab('donations')" class="px-4 py-2 border-b-2 border-blue-600 font-medium">
+                            Donations
+                        </button>
+                        <button onclick="showTab('events')" class="px-4 py-2 border-b-2 border-transparent hover:border-gray-300">
+                            Volunteering
+                        </button>
+                        <button onclick="showTab('aid')" class="px-4 py-2 border-b-2 border-transparent hover:border-gray-300">
+                            Aid Requests
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Donations Tab -->
+                <div id="donations-tab">
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Type</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Title</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Amount</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            <?php
-                            $types = ['Purchase', 'Discount Used', 'Account Update', 'Partner Added', 'Membership Renewal'];
-                            for($i = 1; $i <= 5; $i++):
-                            ?>
+                            <?php foreach ($this->data['history']['donations'] as $donation): ?>
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4"><?= $types[array_rand($types)] ?></td>
-                                <td class="px-6 py-4">Activity <?= $i ?></td>
-                                <td class="px-6 py-4"><?= date('Y-m-d', strtotime("-$i day")) ?></td>
+                                <td class="px-6 py-4">$<?= number_format($donation['amount'], 2) ?></td>
+                                <td class="px-6 py-4"><?= date('Y-m-d', strtotime($donation['donation_date'])) ?></td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 text-sm rounded <?= $donation['is_validated'] ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
+                                        <?= $donation['is_validated'] ? 'Validated' : 'Pending' ?>
+                                    </span>
+                                </td>
                             </tr>
-                            <?php endfor; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                <div class="flex justify-center gap-2 mt-4">
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">Previous</button>
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded">1</button>
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">2</button>
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">3</button>
-                    <button class="px-4 py-2 border rounded hover:bg-gray-50">Next</button>
+                <!-- Events Tab -->
+                <div id="events-tab" class="hidden">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Event</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php foreach ($this->data['history']['events'] as $event): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4"><?= htmlspecialchars($event['title']) ?></td>
+                                <td class="px-6 py-4"><?= date('Y-m-d', strtotime($event['date_start'])) ?></td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 text-sm rounded <?= $event['registration_status'] === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' ?>">
+                                        <?= ucfirst($event['registration_status']) ?>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Aid Requests Tab -->
+                <div id="aid-tab" class="hidden">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Type</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php foreach ($this->data['history']['aid_requests'] as $request): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4"><?= htmlspecialchars($request['aid_type']) ?></td>
+                                <td class="px-6 py-4"><?= date('Y-m-d', strtotime($request['created_at'])) ?></td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded">
+                                        Submitted
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+        
+        <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.getElementById('donations-tab').classList.add('hidden');
+            document.getElementById('events-tab').classList.add('hidden');
+            document.getElementById('aid-tab').classList.add('hidden');
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Update tab buttons
+            const buttons = document.querySelectorAll('.border-b button');
+            buttons.forEach(button => {
+                button.classList.remove('border-blue-600');
+                button.classList.add('border-transparent');
+            });
+            
+            event.target.classList.remove('border-transparent');
+            event.target.classList.add('border-blue-600');
+        }
+        </script>
     <?php
     }
+
+
+    
 
     public function setData($data) {
         $this->data = $data;

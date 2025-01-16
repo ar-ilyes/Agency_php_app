@@ -37,12 +37,24 @@ class Member
 			return;
 		}
         
-        // Create view instance and pass data
+		// get history data
+		$donationModel = new DonationModel();
+		$eventModel = new EventModel();
+		$aidRequestModel = new AidRequestModel();
+		
+		$history = [
+			'donations' => $donationModel->get_member_donations($member_id),
+			'events' => $eventModel->get_member_events($member_id),
+			'aid_requests' => $aidRequestModel->get_member_requests($member_id)
+		];
+	
+        // create view instance and pass data
         $view = new MemberProfileView();
         $view->setData([
             'member' => $memberData,
             'membershipType' => $membershipType,
-			'favorites' => $favorites
+			'favorites' => $favorites,
+			'history' => $history
         ]);
         
         // Call the view's index method

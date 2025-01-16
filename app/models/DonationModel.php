@@ -137,4 +137,18 @@ class DonationModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function get_member_donations($member_id) {
+        $c = $this->connect();
+        $query = "SELECT d.*, 'donation' as type
+                 FROM DONATION d 
+                 WHERE d.member_id = :member_id
+                 ORDER BY d.donation_date DESC";
+        
+        $stmt = $c->prepare($query);
+        $stmt->execute([':member_id' => $member_id]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->disconnect($c);
+        return $result;
+    }
 }

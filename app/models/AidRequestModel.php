@@ -25,13 +25,19 @@ class AidRequestModel {
     public function create_aid_request($data) {
         $c = $this->connect();
         if (!$c) return false;
-
+    
         try {
             // Start transaction
             $c->beginTransaction();
-
-            $query = "INSERT INTO aid_requests (first_name, last_name, birth_date, aid_type, description) 
-                     VALUES (:first_name, :last_name, :birth_date, :aid_type, :description)";
+    
+            // Check if member_id exists in session
+            $member_id = null;
+            if (isset($_SESSION['user']) && isset($_SESSION['user']['entity_id'])) {
+                $member_id = $_SESSION['user']['entity_id'];
+            }
+    
+            $query = "INSERT INTO aid_requests (first_name, last_name, birth_date, aid_type, description, made_by) 
+                     VALUES (:first_name, :last_name, :birth_date, :aid_type, :description, :made_by)";
             
             $stmt = $c->prepare($query);
             $stmt->execute([
@@ -39,7 +45,8 @@ class AidRequestModel {
                 ':last_name' => $data['last_name'],
                 ':birth_date' => $data['birth_date'],
                 ':aid_type' => $data['aid_type'],
-                ':description' => $data['description']
+                ':description' => $data['description'],
+                ':made_by' => $member_id
             ]);
             
             $request_id = $c->lastInsertId();
@@ -132,4 +139,25 @@ class AidRequestModel {
             $this->disconnect($c);
         }
     }
+
+    public function get_member_requests($member_id) {
+        $c = $this->connect();
+        if (!$c) return false;
+    
+        try {
+            $query = "SELECT *, 'aid_request' as type 
+                     FROM aid_requests 
+                     WHERE made_by = :member_id
+                     ORDER BY created_at DESC";
+            $stmt = $c->prepare($query);
+            $stmt->execute([':member_id' => $member_id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $ex) {
+            error_log("Error fetching member aid requests: " . $ex->getMessage());
+            return false;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
 }
