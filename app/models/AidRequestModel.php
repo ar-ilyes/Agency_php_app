@@ -160,4 +160,138 @@ class AidRequestModel {
         }
     }
     
+    public function get_all_aid_requests($filters = []) {
+        $c = $this->connect();
+        if (!$c) return false;
+    
+        try {
+            $query = "SELECT ar.*, at.name as aid_type_name 
+                     FROM aid_requests ar
+                     JOIN aid_types at ON ar.aid_type = at.id
+                     WHERE 1=1";
+            $params = [];
+    
+            if (isset($filters['is_approved'])) {
+                $query .= " AND ar.is_approved = :is_approved";
+                $params[':is_approved'] = $filters['is_approved'];
+            }
+    
+            if (!empty($filters['aid_type'])) {
+                $query .= " AND ar.aid_type = :aid_type";
+                $params[':aid_type'] = $filters['aid_type'];
+            }
+    
+            if (!empty($filters['search'])) {
+                $query .= " AND (ar.first_name LIKE :search OR ar.last_name LIKE :search)";
+                $params[':search'] = "%{$filters['search']}%";
+            }
+    
+            $query .= " ORDER BY ar.created_at DESC";
+    
+            $stmt = $c->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $ex) {
+            error_log("Error fetching aid requests: " . $ex->getMessage());
+            return false;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
+    public function approve_request($request_id) {
+        $c = $this->connect();
+        if (!$c) return false;
+    
+        try {
+            $query = "UPDATE aid_requests SET is_approved = TRUE WHERE id = :id";
+            $stmt = $c->prepare($query);
+            return $stmt->execute([':id' => $request_id]);
+        } catch(PDOException $ex) {
+            error_log("Error approving aid request: " . $ex->getMessage());
+            return false;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
+    public function get_total_requests() {
+        $c = $this->connect();
+        if (!$c) return 0;
+    
+        try {
+            $query = "SELECT COUNT(*) as total FROM aid_requests";
+            $stmt = $c->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+        } catch(PDOException $ex) {
+            error_log("Error getting total requests: " . $ex->getMessage());
+            return 0;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
+    public function get_pending_requests() {
+        $c = $this->connect();
+        if (!$c) return 0;
+    
+        try {
+            $query = "SELECT COUNT(*) as total FROM aid_requests WHERE is_approved = FALSE";
+            $stmt = $c->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+        } catch(PDOException $ex) {
+            error_log("Error getting pending requests: " . $ex->getMessage());
+            return 0;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
+    public function get_approved_requests() {
+        $c = $this->connect();
+        if (!$c) return 0;
+    
+        try {
+            $query = "SELECT COUNT(*) as total FROM aid_requests WHERE is_approved = TRUE";
+            $stmt = $c->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['total'] ?? 0;
+        } catch(PDOException $ex) {
+            error_log("Error getting approved requests: " . $ex->getMessage());
+            return 0;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
+    public function get_requests_by_type() {
+        $c = $this->connect();
+        if (!$c) return [];
+    
+        try {
+            $query = "SELECT 
+                        at.name,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN ar.is_approved THEN 1 ELSE 0 END) as approved,
+                        SUM(CASE WHEN NOT ar.is_approved THEN 1 ELSE 0 END) as pending
+                     FROM aid_requests ar
+                     JOIN aid_types at ON ar.aid_type = at.id
+                     GROUP BY at.id, at.name
+                     ORDER BY at.name";
+            $stmt = $c->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $ex) {
+            error_log("Error getting requests by type: " . $ex->getMessage());
+            return [];
+        } finally {
+            $this->disconnect($c);
+        }
+    }
+    
 }
