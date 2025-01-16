@@ -13,18 +13,18 @@ class Auth {
             $password = $_POST['password'] ?? '';
             
             $user = $this->user_model->verify_user($email);
+            echo json_encode($user);
             
-            // if ($user && password_verify($password, $user['password'])) { TODO: Uncomment this line to enable password hashing
-            if ($user && $password === $user['password']) {
+            // if ($user && password_verify($password, $user['password'])) { //TODO: Uncomment this line to enable password hashing
+            if ($user && $password === $user['password']) {//keeping this for testing bark
 
-                // Store necessary user information in session
                 $_SESSION['user'] = [
                     'user_id' => $user['id'], // User table ID
                     'entity_id' => $user['entity_id'], // Member, Partner, or Admin ID
                     'type' => $user['user_type'],
                     'email' => $user['email']
                 ];
-                // Redirect based on user type
+                error_log('User logged in: ' . json_encode($_SESSION['user']));
                 $this->redirect_user($user['user_type']);
             } else {
                 $view = new AuthView();

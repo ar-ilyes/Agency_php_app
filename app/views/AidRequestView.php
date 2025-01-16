@@ -44,7 +44,7 @@ class AidRequestView extends BaseView {
                                 Prénom
                             </label>
                             <input type="text" name="first_name" id="first_name" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
 
                         <div>
@@ -52,7 +52,7 @@ class AidRequestView extends BaseView {
                                 Nom
                             </label>
                             <input type="text" name="last_name" id="last_name" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
 
                         <div>
@@ -60,7 +60,7 @@ class AidRequestView extends BaseView {
                                 Date de naissance
                             </label>
                             <input type="date" name="birth_date" id="birth_date" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
 
                         <div>
@@ -68,7 +68,7 @@ class AidRequestView extends BaseView {
                                 Type d'aide
                             </label>
                             <select name="aid_type" id="aid_type" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="">Sélectionnez un type</option>
                                 <?php foreach ($aid_types as $type): ?>
                                     <option value="<?php echo htmlspecialchars($type['id']); ?>" 
@@ -91,7 +91,7 @@ class AidRequestView extends BaseView {
                                 Description
                             </label>
                             <textarea name="description" id="description" rows="4" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                         </div>
 
                         <div>
@@ -103,13 +103,13 @@ class AidRequestView extends BaseView {
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-full file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-indigo-50 file:text-indigo-700
-                                hover:file:bg-indigo-100">
+                                file:bg-blue-50 file:text-blue-700
+                                hover:file:bg-blue-100">
                         </div>
 
                         <div>
                             <button type="submit"
-                                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                 Soumettre la demande
                             </button>
                         </div>
@@ -179,7 +179,7 @@ class AidRequestView extends BaseView {
                     <p class="text-gray-600 mb-6">
                         Votre demande d'aide a été enregistrée. Nous vous contacterons bientôt.
                     </p>
-                    <a href="/" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700">
+                    <a href="/" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
                         Retour à l'accueil
                     </a>
                 </div>
@@ -199,7 +199,7 @@ class AidRequestView extends BaseView {
                     <p class="text-gray-600 mb-6">
                         Une erreur est survenue lors de l'envoi de votre demande. Veuillez réessayer.
                     </p>
-                    <a href="/aid-request" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700">
+                    <a href="/aid-request" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
                         Retour au formulaire
                     </a>
                 </div>

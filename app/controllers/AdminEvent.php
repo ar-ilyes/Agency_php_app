@@ -10,7 +10,10 @@ class AdminEvent {
     }
     
     public function index() {
-        // Parse the URL
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'admin') {
+            header('Location: /auth');
+            return;
+        }
         $url = $_GET['url'] ?? '';
         $urlParts = explode('/', trim($url, '/'));
         
@@ -34,7 +37,6 @@ class AdminEvent {
             }
         }
         
-        // Get all events and their volunteers
         $events = $this->eventModel->get_all_events();
         foreach ($events as &$event) {
             $event['volunteers'] = $this->eventModel->get_event_volunteers($event['id']);
@@ -46,7 +48,6 @@ class AdminEvent {
             'volunteers_by_status' => $this->eventModel->get_volunteers_by_status()
         ];
         
-        // Create view instance and pass data
         $view = new AdminEventView();
         $view->setData([
             'events' => $events,

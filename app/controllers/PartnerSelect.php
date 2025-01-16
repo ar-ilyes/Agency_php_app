@@ -10,7 +10,7 @@ class PartnerSelect {
     }
 
     public function index() {
-        $member_id = 1; // Replace with actual logged-in member ID
+        $member_id = 1; 
         $allPartners = $this->partnerModel->get_all_partners();
         $currentFavorites = $this->memberModel->get_member_favorites($member_id);
 
@@ -32,12 +32,7 @@ class PartnerSelect {
     public function save_favorites() {
             $user = $_SESSION['user'];
             $member_id = $user['entity_id'];
-            // // Clear existing favorites and add new ones
-            // foreach ($selected_partners as $partner_id) {
-            //     $this->memberModel->add_favorite($member_id, $partner_id);
-            // }
-            
-            // header('Location: /member');
+           
             $data = json_decode(file_get_contents('php://input'), true);
             $selectedPartners = $data['selected_partners'] ?? [];
             

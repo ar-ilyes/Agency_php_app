@@ -4,7 +4,7 @@ class UserModel {
     private $host = "127.0.0.1";
     private $port = "3306";
     private $user = "root";
-    private $password = "root";
+    private $password = "";
 
     private function connect() {
         $dsn = "mysql:dbname={$this->dbname};host={$this->host};port={$this->port}";
@@ -37,6 +37,7 @@ class UserModel {
         ");
         $stmt->execute([$email]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        error_log(json_encode($result));
         $this->disconnect($c);
         return $result;
     }

@@ -8,7 +8,6 @@ class AdminEventView extends BaseView {
         $this->renderHead();
         $this->render_statistics(); 
         $this->render_create_form();
-        // render_edit_modal
         $this->render_edit_modal();
         $this->render_events_list();
     }
@@ -303,7 +302,6 @@ class AdminEventView extends BaseView {
             document.getElementById('edit_location').value = event.location;
             document.getElementById('edit_max_volunteers').value = event.max_volunteers;
             
-            // Format dates for datetime-local input
             const startDate = new Date(event.date_start);
             const endDate = new Date(event.date_end);
             

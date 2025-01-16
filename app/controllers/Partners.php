@@ -3,14 +3,14 @@ class Partners {
     private $model;
     
     public function __construct() {
-        $this->model = new PartnerModel(); // Fixed class name
+        $this->model = new PartnerModel(); 
     }
     
     public function index() {
         $category = $_GET['categorie'] ?? null;
         $city = $_GET['ville'] ?? null;
         
-        $partners = $this->model->get_all_partners(); // Using the correct method name
+        $partners = $this->model->get_all_partners(); 
         $filtered_partners = $this->filterPartners($partners, $category, $city);
         $categories = $this->getUniqueCategories($partners);
         $cities = $this->getUniqueCities($partners);
@@ -21,17 +21,17 @@ class Partners {
     
     private function filterPartners($partners, $category, $city) {
         return array_filter($partners, function($partner) use ($category, $city) {
-            return (!$category || $partner['category'] === $category) && // Changed to match DB column
-                   (!$city || $partner['city'] === $city); // Changed to match DB column
+            return (!$category || $partner['category'] === $category) && 
+                    (!$city || $partner['city'] === $city); 
         });
     }
     
     private function getUniqueCategories($partners) {
-        return array_unique(array_column($partners, 'category')); // Changed to match DB column
+        return array_unique(array_column($partners, 'category')); 
     }
     
     private function getUniqueCities($partners) {
-        return array_unique(array_column($partners, 'city')); // Changed to match DB column
+        return array_unique(array_column($partners, 'city')); 
     }
     
     public function getPartnerDetails($id) {

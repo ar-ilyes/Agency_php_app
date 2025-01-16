@@ -4,7 +4,7 @@ class PartnerModel {
     private $host="127.0.0.1";
     private $port="3306";
     private $user="root";
-    private $password="root";
+    private $password="";
 
     private function connect(){
         $dsn="mysql:dbname={$this->dbname}; host={$this->host}; port={$this->port}";
@@ -94,16 +94,15 @@ class PartnerModel {
         $c = $this->connect();
         
         try {
-            // Start transaction since we're inserting into multiple tables
             $c->beginTransaction();
             
-            // First create the user
             $userQuery = "INSERT INTO users (user_type, email, password) VALUES (:user_type, :email, :password)";
             $userStmt = $c->prepare($userQuery);
             $userResult = $userStmt->execute([
-                ':user_type' => 'partner', // Assuming 'partner' is the user_type for partners
+                ':user_type' => 'partner', 
                 ':email' => $data['email'],
-                ':password' => password_hash($data['password'], PASSWORD_DEFAULT) // Always hash passwords
+                // ':password' => password_hash($data['password'], PASSWORD_DEFAULT) //TODO : uncomment after
+                ':password' => $data['password'] //for testing
             ]);
             
             if (!$userResult) {
@@ -112,7 +111,6 @@ class PartnerModel {
             
             $userId = $c->lastInsertId();
             
-            // Then create the partner with the user_id reference
             $partnerQuery = "INSERT INTO PARTNER (name, city, category, logo, user_id) 
                             VALUES (:name, :city, :category, :logo, :user_id)";
             $partnerStmt = $c->prepare($partnerQuery);
@@ -130,7 +128,6 @@ class PartnerModel {
             
             $partnerId = $c->lastInsertId();
             
-            // If everything went well, commit the transaction
             $c->commit();
             
             return [
@@ -139,7 +136,6 @@ class PartnerModel {
             ];
             
         } catch (Exception $e) {
-            // If anything goes wrong, rollback the transaction
             $c->rollBack();
             throw $e;
         } finally {

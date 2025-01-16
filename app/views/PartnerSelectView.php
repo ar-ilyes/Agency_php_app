@@ -42,7 +42,7 @@ class PartnerSelectView extends BaseView {
                 </form>
                 <script>
                 document.getElementById('partnerSelectForm').addEventListener('submit', function(e) {
-                    e.preventDefault(); // Prevent default form submission
+                    e.preventDefault(); 
                     
                     const checkboxes = this.querySelectorAll('input[name="selected_partners[]"]:checked');
                     const validationMessage = document.getElementById('validationMessage');
@@ -53,10 +53,8 @@ class PartnerSelectView extends BaseView {
                         return false;
                     }
 
-                    // Create array of selected partner IDs
                     const selectedPartners = Array.from(checkboxes).map(cb => cb.value);
 
-                    // Send POST request using fetch
                     fetch('/partnerSelect/save', {
                         method: 'POST',
                         headers: {
@@ -69,7 +67,7 @@ class PartnerSelectView extends BaseView {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            window.location.href = '/member'; // Redirect on success
+                            window.location.href = '/member'; 
                         } else {
                             validationMessage.textContent = data.message || 'An error occurred while saving favorites.';
                             validationMessage.classList.remove('hidden');

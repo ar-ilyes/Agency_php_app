@@ -10,7 +10,10 @@ class AdminMember {
     }
 
     public function index() {
-        // Parse the URL
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'admin') {
+            header('Location: /auth');
+            return;
+        }
         $url = $_GET['url'] ?? '';
         $urlParts = explode('/', trim($url, '/'));
 
@@ -26,7 +29,6 @@ class AdminMember {
             }
         }
 
-        // Get filters from GET parameters
         $filters = [
             'is_approved' => isset($_GET['is_approved']) ? filter_var($_GET['is_approved'], FILTER_VALIDATE_BOOLEAN) : null,
             'search' => $_GET['search'] ?? null,
@@ -37,16 +39,12 @@ class AdminMember {
         ];
 
 
-        // Get members with filters
         $members = $this->memberModel->get_filtered_members($filters);
         
-        // Get membership types for filter
         $membership_types = $this->membershipTypeModel->get_all();
 
-        // Get unique cities for filter
         $cities = array_unique(array_column($members, 'city'));
 
-        // Create view instance and pass data
         $view = new AdminMemberView();
         $view->setData([
             'members' => $members,

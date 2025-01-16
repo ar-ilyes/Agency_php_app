@@ -29,17 +29,14 @@ class Benefits {
         error_log('Member ID: ' . $member_id);
         error_log('Membership type ID: ' . $membership_type_id);
         
-        // Get filter and sort parameters
         $filters = [
             'category' => $_GET['category'] ?? null,
             'city' => $_GET['city'] ?? null
         ];
         $sort = $_GET['sort'] ?? null;
         
-        // Get all benefits data with filters and sorting
         $data = $this->get_member_benefits($membership_type_id, $filters, $sort);
         
-        // Add filter options to data
         $data['categories'] = $this->benefits_model->get_categories();
         $data['cities'] = $this->benefits_model->get_cities();
         $data['current_filters'] = $filters;

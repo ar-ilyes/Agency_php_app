@@ -4,7 +4,7 @@ class NotificationModel {
     private $host = "127.0.0.1";
     private $port = "3306";
     private $user = "root";
-    private $password = "root";
+    private $password = "";
 
     private function connect() {
         $dsn = "mysql:dbname={$this->dbname}; host={$this->host}; port={$this->port}";

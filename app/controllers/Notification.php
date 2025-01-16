@@ -9,11 +9,13 @@ class Notification {
     }
 
     public function index() {
-        // Get member ID from session
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'member') {
+            header('Location: /auth');
+            return;
+        }
         $user = $_SESSION['user'];
         $member_id = $user['entity_id'];
 
-        // Handle POST requests
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $url = $_GET['url'] ?? '';
             $urlParts = explode('/', trim($url, '/'));
@@ -24,10 +26,8 @@ class Notification {
             }
         }
 
-        // Get notifications
         $notifications = $this->notificationModel->get_member_notifications($member_id);
 
-        // Create view instance and pass data
         $view = new NotificationView();
         $view->setData([
             'notifications' => $notifications

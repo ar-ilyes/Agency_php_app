@@ -4,7 +4,7 @@ class BenefitsModel {
     private $host="127.0.0.1";
     private $port="3306";
     private $user="root";
-    private $password="root";
+    private $password="";
 
     private function connect(){
         $dsn="mysql:dbname={$this->dbname}; host={$this->host}; port={$this->port}";
@@ -63,7 +63,6 @@ class BenefitsModel {
             $params = [];
         }
         
-        // Add filters
         if (!empty($filters['category'])) {
             $query .= " AND p.category = ?";
             $params[] = $filters['category'];
@@ -78,7 +77,6 @@ class BenefitsModel {
             $params[] = $filters['partner_id'];
         }
         
-        // Add sorting
         if ($sort) {
             $query .= " ORDER BY " . $this->get_sort_clause($sort);
         }
@@ -253,13 +251,11 @@ class BenefitsModel {
         return $results;
     }
 
-    // Standard Discount CRUD
     public function create_standard_discount($data) {
         $c = $this->connect();
         try {
             $c->beginTransaction();
             
-            // Insert into STANDARD_DISCOUNT
             $query = "INSERT INTO STANDARD_DISCOUNT (partner_id, description, discount_value, discount_type) 
                      VALUES (:partner_id, :description, :discount_value, :discount_type)";
             $stmt = $c->prepare($query);
@@ -272,8 +268,10 @@ class BenefitsModel {
             
             $discount_id = $c->lastInsertId();
             
-            // Insert eligibility for each membership type
             foreach ($data['membership_types'] as $type_id => $bonus_value) {
+                if($bonus_value == ''){
+                    $bonus_value = 0;
+                }
                 $query = "INSERT INTO DISCOUNT_ELIGIBILITY (discount_id, membership_type_id, is_eligible, bonus_value)
                          VALUES (:discount_id, :type_id, 1, :bonus_value)";
                 $stmt = $c->prepare($query);
@@ -299,7 +297,6 @@ class BenefitsModel {
         try {
             $c->beginTransaction();
             
-            // Update STANDARD_DISCOUNT
             $query = "UPDATE STANDARD_DISCOUNT 
                      SET description = :description,
                          discount_value = :discount_value,
@@ -313,8 +310,10 @@ class BenefitsModel {
                 ':discount_type' => $data['discount_type']
             ]);
             
-            // Update eligibilities
             foreach ($data['membership_types'] as $type_id => $bonus_value) {
+                if($bonus_value == ''){
+                    $bonus_value = 0;
+                }
                 $query = "INSERT INTO DISCOUNT_ELIGIBILITY (discount_id, membership_type_id, is_eligible, bonus_value)
                          VALUES (:discount_id, :type_id, 1, :bonus_value)
                          ON DUPLICATE KEY UPDATE 
@@ -343,12 +342,10 @@ class BenefitsModel {
         try {
             $c->beginTransaction();
             
-            // Delete eligibilities first
             $query = "DELETE FROM DISCOUNT_ELIGIBILITY WHERE discount_id = :id";
             $stmt = $c->prepare($query);
             $stmt->execute([':id' => $id]);
             
-            // Delete discount
             $query = "DELETE FROM STANDARD_DISCOUNT WHERE id = :id";
             $stmt = $c->prepare($query);
             $stmt->execute([':id' => $id]);
@@ -363,7 +360,6 @@ class BenefitsModel {
         }
     }
 
-    // Special Offer CRUD
     public function create_special_offer($data) {
         $c = $this->connect();
         try {
@@ -384,6 +380,9 @@ class BenefitsModel {
             $offer_id = $c->lastInsertId();
             
             foreach ($data['membership_types'] as $type_id => $bonus_value) {
+                if($bonus_value == ''){
+                    $bonus_value = 0;
+                }
                 $query = "INSERT INTO OFFER_ELIGIBILITY (offer_id, membership_type_id, is_eligible, bonus_value)
                          VALUES (:offer_id, :type_id, 1, :bonus_value)";
                 $stmt = $c->prepare($query);
@@ -427,6 +426,9 @@ class BenefitsModel {
             ]);
             
             foreach ($data['membership_types'] as $type_id => $bonus_value) {
+                if($bonus_value == ''){
+                    $bonus_value = 0;
+                }
                 $query = "INSERT INTO OFFER_ELIGIBILITY (offer_id, membership_type_id, is_eligible, bonus_value)
                          VALUES (:offer_id, :type_id, 1, :bonus_value)
                          ON DUPLICATE KEY UPDATE 
@@ -473,7 +475,6 @@ class BenefitsModel {
         }
     }
 
-    // Advantage CRUD
     public function create_advantage($data) {
         $c = $this->connect();
         try {
@@ -526,12 +527,10 @@ class BenefitsModel {
                 ':advantage_type' => $data['advantage_type']
             ]);
             
-            // Delete existing eligibilities
             $query = "DELETE FROM ADVANTAGE_ELIGIBILITY WHERE advantage_id = :id";
             $stmt = $c->prepare($query);
             $stmt->execute([':id' => $id]);
             
-            // Insert new eligibilities
             foreach ($data['membership_types'] as $type_id) {
                 $query = "INSERT INTO ADVANTAGE_ELIGIBILITY (advantage_id, membership_type_id, is_eligible)
                          VALUES (:advantage_id, :type_id, 1)";
@@ -578,25 +577,21 @@ class BenefitsModel {
     public function get_partner_benefits_stats($partner_id) {
         $c = $this->connect();
         try {
-            // Get standard discounts count
             $query = "SELECT COUNT(*) as count FROM STANDARD_DISCOUNT WHERE partner_id = :partner_id";
             $stmt = $c->prepare($query);
             $stmt->execute([':partner_id' => $partner_id]);
             $standard_discounts = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     
-            // Get special offers count
             $query = "SELECT COUNT(*) as count FROM SPECIAL_OFFER WHERE partner_id = :partner_id";
             $stmt = $c->prepare($query);
             $stmt->execute([':partner_id' => $partner_id]);
             $special_offers = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     
-            // Get advantages count
             $query = "SELECT COUNT(*) as count FROM ADVANTAGE WHERE partner_id = :partner_id";
             $stmt = $c->prepare($query);
             $stmt->execute([':partner_id' => $partner_id]);
             $advantages = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     
-            // Get members count per membership type who can access this partner's benefits
             $query = "
                 SELECT mt.name as membership_type, COUNT(DISTINCT m.member_id) as member_count
                 FROM membership_types mt

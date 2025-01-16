@@ -10,7 +10,10 @@ class AdminDonation {
     }
     
     public function index() {
-        // Parse the URL
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'admin') {
+            header('Location: /auth');
+            return;
+        }
         $url = $_GET['url'] ?? '';
         $urlParts = explode('/', trim($url, '/'));
         
@@ -25,7 +28,7 @@ class AdminDonation {
             }
         }
         
-        // Get filters from GET parameters
+        // get filters
         $filters = [
             'is_validated' => isset($_GET['is_validated']) ? (bool)$_GET['is_validated'] : null,
             'search' => $_GET['search'] ?? null,
@@ -33,7 +36,6 @@ class AdminDonation {
             'max_amount' => $_GET['max_amount'] ?? null
         ];
         
-        // Get donations with filters
         $donations = $this->donationModel->get_all_donations($filters);
 
         $donationStats = [
@@ -44,7 +46,6 @@ class AdminDonation {
             'monthly_donations' => $this->donationModel->get_monthly_donations()
         ];
         
-        // Create view instance and pass data
         $view = new AdminDonationView();
         $view->setData([
             'donations' => $donations,

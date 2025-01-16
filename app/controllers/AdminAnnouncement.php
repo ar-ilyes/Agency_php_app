@@ -14,11 +14,13 @@ class AdminAnnouncement {
     }
     
     public function index() {
-        // Parse the URL
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'admin') {
+            header('Location: /auth');
+            return;
+        }
         $url = $_GET['url'] ?? '';
         $urlParts = explode('/', trim($url, '/'));
         
-        // Handle POST requests
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (count($urlParts) === 2 && $urlParts[0] === 'adminAnnouncement') {
                 switch($urlParts[1]) {
@@ -35,10 +37,8 @@ class AdminAnnouncement {
             }
         }
         
-        // Get all announcements
         $announcements = $this->announcementModel->get_all_announcements();
         
-        // Create view instance and pass data
         $view = new AdminAnnouncementView();
         $view->setData([
             'announcements' => $announcements
@@ -53,7 +53,6 @@ class AdminAnnouncement {
             return;
         }
         
-        // Handle image upload
         $image_path = null;
         if (!empty($_FILES['image']['name'])) {
             $target_dir = 'uploads/announcements/';

@@ -12,7 +12,10 @@ class AdminPartnerBenefits {
     }
 
     public function index() {
-        // Get partner_id from URL parameter
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'admin') {
+            header('Location: /auth');
+            return;
+        }
         $url = $_GET['url'] ?? '';
         $urlParts = explode('/', trim($url, '/'));
         $partner_id = $urlParts[1] ?? null; // adminPartnerBenefits/:id
@@ -22,7 +25,6 @@ class AdminPartnerBenefits {
             exit();
         }
 
-        // Handle POST requests
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $urlParts[2] ?? ''; // adminPartnerBenefits/:id/:action
             
@@ -60,7 +62,6 @@ class AdminPartnerBenefits {
             exit();
         }
 
-        // Get data for view
         $partner = $this->partnerModel->get_partner_by_id($partner_id);
         $standardDiscounts = $this->benefitsModel->get_standard_discounts_of_partner($partner_id);
         $specialOffers = $this->benefitsModel->get_special_offers_of_partner($partner_id);

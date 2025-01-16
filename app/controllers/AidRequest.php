@@ -8,6 +8,10 @@ class AidRequest {
     }
 
     public function index() {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'member') {
+            header('Location: /auth');
+            return;
+        }
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->submit_request();
             return;
@@ -24,12 +28,10 @@ class AidRequest {
     public function submit_request() {
         $upload_dir = './../public/uploads/';
         
-        // Ensure upload directory exists
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
 
-        // First create the aid request record
         $request_data = [
             'first_name' => $_POST['first_name'],
             'last_name' => $_POST['last_name'],

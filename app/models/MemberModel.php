@@ -4,7 +4,7 @@ class MemberModel {
     private $host="127.0.0.1";
     private $port="3306";
     private $user="root";
-    private $password="root";
+    private $password="";
 
     private function connect(){
         $dsn="mysql:dbname={$this->dbname}; host={$this->host}; port={$this->port}";
@@ -31,12 +31,11 @@ class MemberModel {
         $c = $this->connect();
         
         try {
-            // Start transaction
             $c->beginTransaction();
             
-            // First, create the user
-            // $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT); TODO: uncomment this line to hash password after
-            $hashedPassword = $data['password'];
+            
+            // $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT); //TODO: uncomment this line to hash password after
+            $hashedPassword = $data['password'];//keeping this for testing
             $stmt = $c->prepare("INSERT INTO users (user_type, email, password) VALUES ('member', :email, :password)");
             $stmt->execute([
                 ':email' => $data['email'],
@@ -44,7 +43,6 @@ class MemberModel {
             ]);
             $userId = $c->lastInsertId();
             
-            // Then, create the member with the user_id
             $stmt = $c->prepare("INSERT INTO members (first_name, last_name, email, address, city, membership_type_id, user_id,is_approved,inscription_date) 
                                 VALUES (:first_name, :last_name, :email, :address, :city, :membership_type_id, :user_id, false, :inscription_date)");
             $stmt->execute([
@@ -59,14 +57,12 @@ class MemberModel {
             ]);
             $memberId = $c->lastInsertId();
             
-            // Commit transaction
             $c->commit();
             
             $this->disconnect($c);
             return $memberId;
             
         } catch (PDOException $e) {
-            // Rollback transaction on error
             $c->rollBack();
             $this->disconnect($c);
             throw $e;
@@ -94,7 +90,6 @@ class MemberModel {
         try {
             $c->beginTransaction();
             
-            // Update member's payment receipt
             $q1 = "UPDATE members SET payment_receipt = :new_path WHERE member_id = :member_id";
             $stmt1 = $c->prepare($q1);
             $r1 = $stmt1->execute([
@@ -102,7 +97,6 @@ class MemberModel {
                 ':member_id' => $member_id
             ]);
             
-            // Create payment history record
             $q2 = "INSERT INTO payment_history (member_id, payment_receipt, payment_type) VALUES (:member_id, :payment_receipt, :payment_type)";
             $stmt2 = $c->prepare($q2);
             $r2 = $stmt2->execute([

@@ -25,33 +25,33 @@ class Partner {
             }
         }
         
-        // Get partner data
         $partnerData = $this->partnerModel->get_partner_by_id($partner_id);
 
         $verifiedMember = $_SESSION['verified_member'] ?? null;
         if($verifiedMember) {
-            unset($_SESSION['verified_member']); // Clear after use
+            unset($_SESSION['verified_member']);
         }
         
-        // Create view instance and pass data
         $view = new PartnerProfileView();
         $view->setData([
             'partner' => $partnerData,
             'verifiedMember' => $verifiedMember
         ]);
         
-        // Call the view's index method
         $view->index();
     }
 
     private function verify_member() {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'partner') {
+            header('Location: /auth');
+            return;
+        }
         $member_id = $_POST['member_id'] ?? null;
         $partner_id = $_SESSION['user']['entity_id'];
         
         if($member_id) {
             $memberData = $this->memberModel->get_member_by_id($member_id);
             if($memberData) {
-                // Get membership type
                 $membershipType = $this->memberModel->get_membership_type($memberData['membership_type_id']);
                 $memberData['membership_type'] = $membershipType;
                 
@@ -82,7 +82,6 @@ class Partner {
         header('Location: /partner?error=member_not_found');
     }
 
-    // Method that view can call for dynamic content
     public function getPartnerData($partner_id) {
         return $this->partnerModel->get_partner_by_id($partner_id);
     }
@@ -91,7 +90,6 @@ class Partner {
         $user = $_SESSION['user'];
         $partner_id = $user['entity_id'];
         
-        // Handle file upload for logo
         $logo = $_FILES['logo'] ?? null;
         $logo_path = null;
         

@@ -4,7 +4,7 @@ class EventModel {
     private $host="127.0.0.1";
     private $port="3306";
     private $user="root";
-    private $password="root";
+    private $password="";
 
     private function connect(){
         $dsn="mysql:dbname={$this->dbname}; host={$this->host}; port={$this->port}";
@@ -42,7 +42,6 @@ class EventModel {
     public function register_volunteer($event_id, $member_id) {
         $c = $this->connect();
         
-        // Check if already registered
         $check_query = "SELECT id FROM EVENT_VOLUNTEER WHERE event_id = ? AND member_id = ?";
         $check_stmt = $c->prepare($check_query);
         $check_stmt->execute([$event_id, $member_id]);
@@ -52,7 +51,6 @@ class EventModel {
             return ['success' => false, 'message' => 'Already registered for this event'];
         }
         
-        // Check if event is full
         $capacity_query = "
             SELECT 
                 e.max_volunteers,
@@ -71,7 +69,6 @@ class EventModel {
             return ['success' => false, 'message' => 'Event is full'];
         }
         
-        // Register volunteer
         $query = "INSERT INTO EVENT_VOLUNTEER (event_id, member_id) VALUES (?, ?)";
         $stmt = $c->prepare($query);
         $result = $stmt->execute([$event_id, $member_id]);
@@ -160,10 +157,8 @@ class EventModel {
         try {
             $c->beginTransaction();
             
-            // Get current timestamp
             $current_time = date('Y-m-d H:i:s');
             
-            // Soft delete the event
             $event_query = "UPDATE EVENT SET deleted_at = :deleted_at WHERE id = :event_id";
             $event_stmt = $c->prepare($event_query);
             $event_result = $event_stmt->execute([
@@ -171,7 +166,6 @@ class EventModel {
                 ':event_id' => $event_id
             ]);
             
-            // Soft delete related volunteer records
             $volunteer_query = "UPDATE EVENT_VOLUNTEER SET deleted_at = :deleted_at WHERE event_id = :event_id";
             $volunteer_stmt = $c->prepare($volunteer_query);
             $volunteer_result = $volunteer_stmt->execute([

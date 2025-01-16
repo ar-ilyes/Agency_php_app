@@ -7,6 +7,7 @@ class AidTypes {
     }
     
     public function index() {
+        
         $data = $this->get_aid_types_data();
         $view = new AidTypesView();
         $view->afficher_site($data);

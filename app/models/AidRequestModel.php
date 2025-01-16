@@ -4,7 +4,7 @@ class AidRequestModel {
     private $host = "127.0.0.1";
     private $port = "3306";
     private $user = "root";
-    private $password = "root";
+    private $password = "";
 
     private function connect() {
         $dsn = "mysql:dbname={$this->dbname}; host={$this->host}; port={$this->port}";
@@ -27,10 +27,8 @@ class AidRequestModel {
         if (!$c) return false;
     
         try {
-            // Start transaction
             $c->beginTransaction();
     
-            // Check if member_id exists in session
             $member_id = null;
             if (isset($_SESSION['user']) && isset($_SESSION['user']['entity_id'])) {
                 $member_id = $_SESSION['user']['entity_id'];
@@ -51,12 +49,10 @@ class AidRequestModel {
             
             $request_id = $c->lastInsertId();
             
-            // Commit transaction
             $c->commit();
             
             return $request_id;
         } catch(PDOException $ex) {
-            // Rollback transaction on error
             if ($c->inTransaction()) {
                 $c->rollBack();
             }

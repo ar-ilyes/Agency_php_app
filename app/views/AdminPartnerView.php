@@ -176,7 +176,6 @@ class AdminPartnerView extends BaseView {
                                         class="mt-1 block w-full">
                             </div>
 
-                            //add email and password
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Email</label>
                                 <input type="email" name="email" required

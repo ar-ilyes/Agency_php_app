@@ -13,7 +13,6 @@ class MemberProfileView extends BaseView
     public function index()
     {
         $this->renderHead();
-        // $this->render_top_navbar();
         if ($this->isMembershipExpired()) {
             $this->render_expired_warning();
         }
@@ -22,8 +21,9 @@ class MemberProfileView extends BaseView
         $this->render_history_section();
     }
     private function isMembershipExpired() {
-        // Implement your expiration logic here
-        return false;
+        $inscription_date = $this->data['member']['inscription_date'];
+        $expiration_date = date('Y-m-d', strtotime($inscription_date . ' +1 year'));
+        return $expiration_date < date('Y-m-d');
     }
 
     private function render_expired_warning()
@@ -370,15 +370,12 @@ class MemberProfileView extends BaseView
         
         <script>
         function showTab(tabName) {
-            // Hide all tabs
             document.getElementById('donations-tab').classList.add('hidden');
             document.getElementById('events-tab').classList.add('hidden');
             document.getElementById('aid-tab').classList.add('hidden');
             
-            // Show selected tab
             document.getElementById(tabName + '-tab').classList.remove('hidden');
             
-            // Update tab buttons
             const buttons = document.querySelectorAll('.border-b button');
             buttons.forEach(button => {
                 button.classList.remove('border-blue-600');

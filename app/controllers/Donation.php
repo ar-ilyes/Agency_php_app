@@ -18,8 +18,7 @@ class Donation {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $result = $this->process_donation($member_id);
             if ($result) {
-                // Redirect to success page or show success message
-                header('Location: /donation/success');
+                header('Location: /member?success=1');
                 exit;
             }
         }

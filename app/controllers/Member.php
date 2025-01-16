@@ -14,14 +14,11 @@ class Member
         $user = $_SESSION['user'];
         $member_id = $user['entity_id'];
         
-        // Get member data
         $memberData = $this->memberModel->get_member_by_id($member_id);
-        // Get membership type
         $membershipType = $this->memberModel->get_membership_type($memberData['membership_type_id']);
 		$favorites = $this->memberModel->get_member_favorites($member_id);
 		error_log('Favorites: ' . json_encode($favorites));// bach ntesti
 
-		// Parse the URL
 		$url = $_GET['url'] ?? '';
 		$urlParts = explode('/', trim($url, '/'));
 
@@ -36,7 +33,6 @@ class Member
 			}
 		}
 	
-		// Check if the URL matches the pattern /member/remove-favorite/{id}
 		if (count($urlParts) === 3 && $urlParts[0] === 'member' && $urlParts[1] === 'remove-favorite') {
 			$favoriteId = $urlParts[2];
 			$this->remove_favorite($favoriteId);
@@ -44,7 +40,6 @@ class Member
 		}
 		
         
-		// get history data
 		$donationModel = new DonationModel();
 		$eventModel = new EventModel();
 		$aidRequestModel = new AidRequestModel();
@@ -55,7 +50,6 @@ class Member
 			'aid_requests' => $aidRequestModel->get_member_requests($member_id)
 		];
 	
-        // create view instance and pass data
         $view = new MemberProfileView();
         $view->setData([
             'member' => $memberData,
@@ -63,8 +57,6 @@ class Member
 			'favorites' => $favorites,
 			'history' => $history
         ]);
-        
-        // Call the view's index method
         $view->index();
     }
 
@@ -75,7 +67,6 @@ class Member
         header('Location: /member');
     }
 
-    // Method that view can call for dynamic content
     public function getMemberData($member_id) {
         return $this->memberModel->get_member_by_id($member_id);
     }
@@ -88,7 +79,6 @@ class Member
 		$user = $_SESSION['user'];
 		$member_id = $user['entity_id'];
 		
-		// Handle file upload for photo
 		$photo = $_FILES['photo'] ?? null;
 		$photo_path = null;
 		
@@ -121,6 +111,10 @@ class Member
 	}
 
 	public function upgrade() {
+		if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'member') {
+            header('Location: /auth');
+            return;
+        }
 		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 			header('Location: /member');
 			return;
@@ -129,7 +123,6 @@ class Member
 		$user = $_SESSION['user'];
 		$member_id = $user['entity_id'];
 		
-		// Handle payment receipt upload
 		$receipt = $_FILES['payment_receipt'] ?? null;
 		$receipt_path = null;
 		if ($receipt && $receipt['error'] === UPLOAD_ERR_OK) {

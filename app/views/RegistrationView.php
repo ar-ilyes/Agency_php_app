@@ -7,33 +7,10 @@ class RegistrationView extends BaseView {
         $this->controller = new Register();
     }
 
-    // Main method to display the entire page
     public function afficher_site() {
         $this->renderHead();
-        $this->afficher_navbar();
         $this->afficher_form_container();
-        $this->afficher_footer();
         $this->addScript();
-    }
-
-    protected function getPageTitle() {
-        return "Inscription des Membres - Association";
-    }
-
-
-    protected function afficher_navbar() {
-        ?>
-        <nav class="bg-indigo-600 text-white p-4">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <div class="text-xl font-bold">Association</div>
-                <ul class="flex space-x-4">
-                    <li><a href="/" class="hover:text-indigo-200">Accueil</a></li>
-                    <li><a href="/about" class="hover:text-indigo-200">À propos</a></li>
-                    <li><a href="/contact" class="hover:text-indigo-200">Contact</a></li>
-                </ul>
-            </div>
-        </nav>
-        <?php
     }
 
     protected function afficher_form_container() {
@@ -147,19 +124,19 @@ class RegistrationView extends BaseView {
             <h2 class="text-xl font-semibold text-gray-800">Documents Requis</h2>
             <div class="space-y-4">
                 <div>
-                    <label for="photo" class="block text-sm font-medium text-gray-700">Photo:</label>
+                    <label for="photo" class="block text-sm font-medium text-gray-700">Photo: (doit obligatoirement être png)</label>
                     <input type="file" id="photo" name="photo" accept="image/*" required 
-                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
                 <div>
                     <label for="id_document" class="block text-sm font-medium text-gray-700">Pièce d'identité:</label>
                     <input type="file" id="id_document" name="id_document" accept="application/pdf" required 
-                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
                 <div>
                     <label for="payment_receipt" class="block text-sm font-medium text-gray-700">Reçu de paiement:</label>
                     <input type="file" id="payment_receipt" name="payment_receipt" accept="application/pdf" required 
-                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                           class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
             </div>
         </div>
@@ -170,18 +147,10 @@ class RegistrationView extends BaseView {
         ?>
         <div class="pt-4">
             <button type="submit" 
-                    class="w-full bg-indigo-600 text-white py-3 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-lg font-semibold">
+                    class="w-full bg-blue-600 text-white py-3 px-4 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-lg font-semibold">
                 S'inscrire
             </button>
         </div>
-        <?php
-    }
-
-    protected function afficher_footer() {
-        ?>
-        <footer class="bg-gray-50 text-center py-4 mt-8">
-            <p class="text-gray-600">&copy; <?php echo date('Y'); ?> Association. Tous droits réservés.</p>
-        </footer>
         <?php
     }
 
@@ -208,9 +177,9 @@ class RegistrationView extends BaseView {
             document.addEventListener("DOMContentLoaded", function() {
                 const form = document.querySelector("form");
                 form.addEventListener("submit", function(event) {
-                    event.preventDefault();  // Prevent the default form submission
+                    event.preventDefault();  
 
-                    const formData = new FormData(form);  // Collect all the form data
+                    const formData = new FormData(form);  
 
                     fetch('/register', {
                         method: 'POST',
@@ -220,7 +189,7 @@ class RegistrationView extends BaseView {
                     .then(data => {
                         if (data.success) {
                             alert("Registration successful!");
-                            // Optionally, redirect or reset the form
+                            window.location.href = "/auth";
                             form.reset();
                         } else {
                             alert("Error during registration: " + data.error);

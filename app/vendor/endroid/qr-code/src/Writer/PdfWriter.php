@@ -58,7 +58,6 @@ final class PdfWriter implements WriterInterface
                 throw new \Exception('pdf option must be an instance of FPDF');
             }
         } else {
-            // @todo Check how to add label height later
             $fpdf = new \FPDF('P', $unit, [$matrix->getOuterSize(), $matrix->getOuterSize() + $labelSpace]);
             $fpdf->AddPage();
         }

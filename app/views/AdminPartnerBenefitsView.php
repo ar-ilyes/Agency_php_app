@@ -620,7 +620,6 @@ class AdminPartnerBenefitsView extends BaseView {
         document.getElementById('edit_discount_value').value = discount.discount_value;
         document.getElementById('edit_discount_type').value = discount.discount_type;
         
-        // Reset all checkboxes and bonus values
         document.querySelectorAll('[id^="edit_discount_type_"]').forEach(checkbox => {
             checkbox.checked = false;
         });
@@ -628,7 +627,6 @@ class AdminPartnerBenefitsView extends BaseView {
             input.value = '';
         });
         
-        // Set eligibilities
         if (discount.eligibilities) {
             discount.eligibilities.forEach(eligibility => {
                 const checkbox = document.getElementById(`edit_discount_type_${eligibility.membership_type_id}`);
@@ -649,7 +647,6 @@ class AdminPartnerBenefitsView extends BaseView {
         document.getElementById('edit_offer_start_date').value = offer.start_date.split(' ')[0];
         document.getElementById('edit_offer_end_date').value = offer.end_date.split(' ')[0];
         
-        // Reset all checkboxes and bonus values
         document.querySelectorAll('[id^="edit_offer_type_"]').forEach(checkbox => {
             checkbox.checked = false;
         });
@@ -657,7 +654,6 @@ class AdminPartnerBenefitsView extends BaseView {
             input.value = '';
         });
         
-        // Set eligibilities
         if (offer.eligibilities) {
             offer.eligibilities.forEach(eligibility => {
                 const checkbox = document.getElementById(`edit_offer_type_${eligibility.membership_type_id}`);
@@ -675,12 +671,10 @@ class AdminPartnerBenefitsView extends BaseView {
         document.getElementById('edit_advantage_description').value = advantage.description;
         document.getElementById('edit_advantage_type').value = advantage.advantage_type;
         
-        // Reset all checkboxes
         document.querySelectorAll('[id^="edit_advantage_type_"]').forEach(checkbox => {
             checkbox.checked = false;
         });
         
-        // Set eligibilities
         if (advantage.eligibilities) {
             advantage.eligibilities.forEach(eligibility => {
                 const checkbox = document.getElementById(`edit_advantage_type_${eligibility.membership_type_id}`);

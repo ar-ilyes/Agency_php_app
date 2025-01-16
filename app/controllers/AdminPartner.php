@@ -10,12 +10,13 @@ class AdminPartner {
     }
 
     public function index() {
-
-        // Parse the URL
+    if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'admin') {
+        header('Location: /auth');
+        return;
+    }
     $url = $_GET['url'] ?? '';
     $urlParts = explode('/', trim($url, '/'));
 
-    // Check if the request is a POST request
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Check if the URL matches the pattern /adminPartner/delete
         if (count($urlParts) === 2 && $urlParts[0] === 'adminPartner' && $urlParts[1] === 'delete') {
@@ -23,42 +24,35 @@ class AdminPartner {
             return;
         }
 
-        // Check if the URL matches the pattern /adminPartner/create
         if (count($urlParts) === 2 && $urlParts[0] === 'adminPartner' && $urlParts[1] === 'create') {
             error_log('Creating partner');
             $this->create();
             return;
         }
 
-        // Check if the URL matches the pattern /adminPartner/update
         if (count($urlParts) === 2 && $urlParts[0] === 'adminPartner' && $urlParts[1] === 'update') {
             $this->update();
             return;
         }
     }
 
-        // Get filters from GET parameters
         $filters = [
             'city' => $_GET['city'] ?? null,
             'category' => $_GET['category'] ?? null,
             'search' => $_GET['search'] ?? null
         ];
 
-        // Get partners with filters
         $partners = $this->partnerModel->get_filtered_partners($filters);
         
-        // Get categories and cities for filters
         $categories = $this->benefitsModel->get_categories();
         $cities = $this->benefitsModel->get_cities();
 
-        // Get statistics for each partner
         $partner_stats = [];
         foreach ($partners as $partner) {
             $partner_stats[$partner['id']] = $this->benefitsModel->get_partner_benefits_stats($partner['id']);
         }
 
 
-        // Create view instance and pass data
         $view = new AdminPartnerView();
         $view->setData([
             'partners' => $partners,
@@ -73,11 +67,10 @@ class AdminPartner {
 
     public function create() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/partner');
+            header('Location: /adminPartner');
             return;
         }
 
-        // Handle file upload for logo
         $logo = $_FILES['logo'] ?? null;
         $logo_path = null;
         if ($logo && $logo['error'] === UPLOAD_ERR_OK) {
@@ -101,15 +94,15 @@ class AdminPartner {
         $partner_id = $this->partnerModel->create_partner($data);
 
         if ($partner_id) {
-            header('Location: /admin/partner?success=created');
+            header('Location: /adminPartner?success=created');
         } else {
-            header('Location: /admin/partner?error=create_failed');
+            header('Location: /adminPartner?error=create_failed');
         }
     }
 
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/partner');
+            header('Location: /adminPartner');
             return;
         }
 
@@ -138,15 +131,15 @@ class AdminPartner {
         $success = $this->partnerModel->update_partner($partner_id, $data);
 
         if ($success) {
-            header('Location: /admin/partner?success=updated');
+            header('Location: /adminPartner?success=updated');
         } else {
-            header('Location: /admin/partner?error=update_failed');
+            header('Location: /adminPartner?error=update_failed');
         }
     }
 
     public function delete() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /admin/partner');
+            header('Location: /adminPartner');
             return;
         }
 
@@ -154,9 +147,9 @@ class AdminPartner {
         $success = $this->partnerModel->delete_partner($partner_id);
 
         if ($success) {
-            header('Location: /admin/partner?success=deleted');
+            header('Location: /adminPartner?success=deleted');
         } else {
-            header('Location: /admin/partner?error=delete_failed');
+            header('Location: /adminPartner?error=delete_failed');
         }
     }
 }

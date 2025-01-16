@@ -91,7 +91,7 @@ class PartnersView {
                                         <?= htmlspecialchars($partner['city']) ?>
                                     </p>
                                 </div>
-                                <a href="/partner/details/<?= $partner['id'] ?>" 
+                                <a href="/partnerInfo/<?= $partner['id'] ?>" 
                                    class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300">
                                     Plus de détails
                                 </a>

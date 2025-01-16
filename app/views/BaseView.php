@@ -76,7 +76,7 @@ class BaseView
 
         <?php
         }else{
-            //nothing to show
+            //
         }
     }
 

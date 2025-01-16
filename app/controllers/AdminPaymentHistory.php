@@ -9,7 +9,10 @@ class AdminPaymentHistory {
     }
     
     public function index() {
-        // Get filters from GET parameters
+        if (!isset($_SESSION['user']) || $_SESSION['user']['type'] !== 'admin') {
+            header('Location: /auth');
+            return;
+        }
         $filters = [
             'payment_type' => $_GET['payment_type'] ?? null,
             'search' => $_GET['search'] ?? null,
@@ -17,7 +20,6 @@ class AdminPaymentHistory {
             'end_date' => $_GET['end_date'] ?? null
         ];
         
-        // Get payments with filters
         $payments = $this->paymentModel->get_all_payments($filters);
         
         $paymentStats = [
@@ -26,7 +28,6 @@ class AdminPaymentHistory {
             'monthly_payments' => $this->paymentModel->get_monthly_payments()
         ];
         
-        // Create view instance and pass data
         $view = new AdminPaymentHistoryView();
         $view->setData([
             'payments' => $payments,
