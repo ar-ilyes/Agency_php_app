@@ -89,12 +89,42 @@ class MemberModel {
         return $r;
     }
 
-    public function update_payment_receipt($member_id, $new_path){
-        $c=$this->connect();
-        $q="UPDATE members SET payment_receipt='{$new_path}' WHERE member_id='{$member_id}'";
-        $r=$this->query($c, $q);
-        $this->disconnect($c);
-        return $r;
+    public function update_payment_receipt($member_id, $new_path){ 
+        $c = $this->connect();
+        try {
+            $c->beginTransaction();
+            
+            // Update member's payment receipt
+            $q1 = "UPDATE members SET payment_receipt = :new_path WHERE member_id = :member_id";
+            $stmt1 = $c->prepare($q1);
+            $r1 = $stmt1->execute([
+                ':new_path' => $new_path,
+                ':member_id' => $member_id
+            ]);
+            
+            // Create payment history record
+            $q2 = "INSERT INTO payment_history (member_id, payment_receipt, payment_type) VALUES (:member_id, :payment_receipt, :payment_type)";
+            $stmt2 = $c->prepare($q2);
+            $r2 = $stmt2->execute([
+                ':member_id' => $member_id,
+                ':payment_receipt' => $new_path,
+                ':payment_type' => 'registration'
+            ]);
+            
+            if ($r1 && $r2) {
+                $c->commit();
+                $this->disconnect($c);
+                return true;
+            } else {
+                $c->rollBack();
+                $this->disconnect($c);
+                return false;
+            }
+        } catch (Exception $e) {
+            $c->rollBack();
+            $this->disconnect($c);
+            return false;
+        }
     }
 
     public function get_member_by_id($member_id) {

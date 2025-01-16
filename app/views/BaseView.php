@@ -115,7 +115,9 @@ class BaseView
                     ['url' => '/adminEvent', 'text' => 'Events'],
                     ['url' => '/adminMember', 'text' => 'Members'],
                     ['url' => '/adminPartner', 'text' => 'Partners'],
-                    ['url' => '/auth', 'text' => 'Account']
+                    ['url' => '/auth', 'text' => 'Account'],
+                    ['url' => '/adminAidRequest', 'text' => 'aidRequests'],
+                    ['url' => '/adminPaymentHistory', 'text' => 'adminPaymentHistory'],
                 ];
                 break;
                 
