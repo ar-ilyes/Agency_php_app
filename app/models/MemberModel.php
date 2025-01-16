@@ -233,5 +233,21 @@ class MemberModel {
         $this->disconnect($c);
         return $result;
     }
+
+    public function get_all_member_ids() {
+        $c = $this->connect();
+        if (!$c) return false;
+
+        try {
+            $query = "SELECT member_id FROM members WHERE is_approved = 1";
+            $stmt = $c->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch(PDOException $ex) {
+            return false;
+        } finally {
+            $this->disconnect($c);
+        }
+    }
 }
 
